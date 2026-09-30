@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>세모 게임실 — 학생이 기획한 삼각형 게임</title>
+<meta name="description" content="4학년 학생들이 종이에 기획한 삼각형 게임 3종. 예각·직각·둔각삼각형을 돌리고, 자르고, 낚는다.">
+<meta property="og:title" content="세모 게임실">
+<meta property="og:description" content="학생이 기획한 삼각형 게임 3종 · AI 기획 평가 · 디버깅 활동지">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="세모 게임실">
+<meta property="og:url" content="https://steam-triangle-game.vercel.app/">
+<meta property="og:image" content="https://steam-triangle-game.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/games.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ── 홈 ─────────────────────────────────────── -->
+  <section id="view-home" class="view">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M4 42 L20 8 L26 42 Z" fill="var(--acute)"/>
+          <path d="M22 42 L22 16 L44 42 Z" fill="var(--right)"/>
+          <path d="M14 42 L40 30 L46 42 Z" fill="var(--obtuse)" opacity=".92"/>
+        </svg>
+        <span class="brand-name">세모 게임실</span>
+      </div>
+      <div class="topbar-tools">
+        <a class="tbtn" href="review.html" target="_blank" rel="noopener">AI 평가서</a>
+        <a class="tbtn" href="worksheet.html" target="_blank" rel="noopener">활동지</a>
+        <button class="tbtn icon" id="btn-sound" type="button" aria-pressed="true" aria-label="소리"></button>
+      </div>
+    </header>
+
+    <main class="home">
+      <div class="home-head">
+        <h1>게임 선택</h1>
+        <p class="home-keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></p>
+      </div>
+      <div class="posters" id="posters"></div>
+      <div class="teams" id="teams"></div>
+    </main>
+  </section>
+
+  <!-- ── 게임 ───────────────────────────────────── -->
+  <section id="view-game" class="view" hidden>
+    <header class="gbar">
+      <button class="gback" id="btn-back" type="button" aria-label="게임 선택으로">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19" /></svg>
+        <kbd>Esc</kbd>
+      </button>
+      <div class="gtitle">
+        <span class="gnum" id="g-num">01</span>
+        <div>
+          <h2 id="g-title">—</h2>
+          <p id="g-who">—</p>
+        </div>
+      </div>
+      <div class="gai">
+        <span class="gai-tag">AI</span>
+        <p id="g-ai">—</p>
+      </div>
+      <div class="gtools">
+        <button class="tbtn" id="btn-plan" type="button">기획안</button>
+        <button class="tbtn" id="btn-review" type="button">AI 평가</button>
+        <button class="tbtn" id="btn-letter" type="button">편지</button>
+        <button class="tbtn icon" id="btn-sound2" type="button" aria-pressed="true" aria-label="소리"></button>
+      </div>
+    </header>
+    <div class="stage" id="stage"></div>
+  </section>
+
+  <!-- ── 결과 ───────────────────────────────────── -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="ov-card" role="dialog" aria-modal="true">
+      <p class="ov-kicker" id="ov-kicker"></p>
+      <h3 id="ov-title"></h3>
+      <div class="ov-body" id="ov-body"></div>
+      <div class="ov-actions" id="ov-actions"></div>
+    </div>
+  </div>
+
+  <!-- ── 모달 (기획안 · 평가 · 편지) ─────────────── -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="modal-title">—</h3>
+        <div class="modal-tabs" id="modal-tabs"></div>
+        <div class="modal-actions" id="modal-actions"></div>
+        <button class="modal-x" id="modal-x" type="button" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/review.js"></script>
+<script src="js/games/rotate.js"></script>
+<script src="js/games/pizza.js"></script>
+<script src="js/games/fish.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>

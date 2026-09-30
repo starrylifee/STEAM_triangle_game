@@ -1,0 +1,9 @@
+node_modules/
+.vercel/
+.env*
+*.log
+shot-*.png
+scratch/
+
+# 원본 스캔 (지운 이름 흔적이 가려지지 않음) — 공개 저장소에 올리지 않는다
+data/

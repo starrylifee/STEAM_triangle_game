@@ -1,0 +1,27 @@
+{
+  "R1": {
+    "randMissPerTarget": 14.4,
+    "numMissPerTarget": 1.02,
+    "fourRate": 27
+  },
+  "R2": {
+    "randAcute": 26,
+    "randObtuse": 69,
+    "randRight": 5
+  },
+  "R3": {
+    "sea": {
+      "acMax": 68,
+      "obMin": 112
+    },
+    "deep": {
+      "acMax": 84,
+      "obMin": 96
+    },
+    "river": {
+      "acMax": 78,
+      "obMin": 102
+    },
+    "randWin": 0.3
+  }
+}
