@@ -182,7 +182,13 @@ class GameTangram extends GameBase {
       xs.forEach(t => { if (Math.abs(t - x) < bx) { bx = Math.abs(t - x); dx = t - x; } });
       ys.forEach(t => { if (Math.abs(t - y) < by) { by = Math.abs(t - y); dy = t - y; } });
     });
-    p.x += dx; p.y += dy; this.kit.draw(p);
+    p.x += dx; p.y += dy;
+    // 틀을 조금 넘었으면 안으로 밀어 넣는다 (조각이 틀보다 작을 때만)
+    const v = this.kit.world(p), vx = v.map(q => q[0]), vy = v.map(q => q[1]);
+    const minX = Math.min(...vx), maxX = Math.max(...vx), minY = Math.min(...vy), maxY = Math.max(...vy);
+    if (maxX - minX <= F.w) { if (minX < F.x) p.x += F.x - minX; else if (maxX > F.x + F.w) p.x -= maxX - (F.x + F.w); }
+    if (maxY - minY <= F.h) { if (minY < F.y) p.y += F.y - minY; else if (maxY > F.y + F.h) p.y -= maxY - (F.y + F.h); }
+    this.kit.draw(p);
   }
   validPlace(p) {
     const F = this.F, w = this.kit.world(p);

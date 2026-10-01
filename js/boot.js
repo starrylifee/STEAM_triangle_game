@@ -43,7 +43,8 @@ function syncSound() {
 
 /* ── 모달 ────────────────────────────────────── */
 const Modal = {
-  open(title, tabs, render, actions = '') {
+  open(title, tabs, render, actions = '', first = 0) {
+    if (Overlay.open) return;   // 결과 창이 떠 있을 때는 열지 않는다
     pauseGame();
     $('#modal-title').textContent = title;
     $('#modal-actions').innerHTML = actions;
@@ -56,7 +57,7 @@ const Modal = {
     if (tabs && tabs.length > 1) tabs.forEach((t, i) => {
       const b = el('button', 'modal-tab', t); b.type = 'button'; b.onclick = () => show(i); tb.appendChild(b);
     });
-    show(0);
+    show(first);
     $('#modal').hidden = false;
   },
   close() { $('#modal').hidden = true; resumeGame(); },
@@ -68,8 +69,11 @@ $('#modal').onclick = (e) => { if (e.target.id === 'modal') Modal.close(); };
 function openPlan() {
   const n = current.n, g = GAMES[n];
   const cap = g.caps || ['1. 규칙 설명', '2. 배운 내용', '3. 디자인', '4. 디자인 2'];
-  Modal.open(`기획안 · ${g.title}`, null, () => `
-    <div class="plan-pages">${g.pages.map((p, i) => `
+  const tabs = g.papers ? ['기획서', '디버깅 페이퍼'] : null;
+  Modal.open(`기획안 · ${g.title}`, tabs, (t) => t === 1
+    ? `<div class="plan-pages">${g.papers.map((p, i) => `
+      <figure><img src="source_images/${p}" alt="${g.title} 디버깅 페이퍼 ${i + 1}" loading="lazy"><figcaption>디버깅 페이퍼 ${i + 1} (이름 가림)</figcaption></figure>`).join('')}</div>`
+    : `<div class="plan-pages">${g.pages.map((p, i) => `
       <figure><img src="source_images/${p}" alt="${g.title} 기획서 ${i + 1}쪽" loading="lazy"><figcaption>${cap[i]}</figcaption></figure>`).join('')}
     </div>`);
 }
@@ -80,13 +84,14 @@ function openLetter() {
     return `<article class="letter">
       <p class="to">${l.to}</p>
       ${l.body.map(p => `<p>${p}</p>`).join('')}
-      <div class="mine"><p><b>기획서에 없어서 내가 정한 것</b></p><ul>${l.mine.map(x => `<li>${x}</li>`).join('')}</ul></div>
+      ${l.changes ? `<div class="mine"><p><b>이번에 바꾼 것</b></p><ul>${l.changes.map(x => `<li>${x}</li>`).join('')}</ul></div>` : ''}
+      <div class="mine"><p><b>${l.changes ? '이번에 내가 정한 것' : '기획서에 없어서 내가 정한 것'}</b></p><ul>${l.mine.map(x => `<li>${x}</li>`).join('')}</ul></div>
       <div class="hint"><p><b>조금 아쉬울 수 있는 곳</b></p>${l.hints.map(h => `<p class="h">${h}</p>`).join('')}</div>
       <p>${l.ask}</p>
       <p>${l.next}</p>
       <p class="from">${l.from}</p>
     </article>`;
-  });
+  }, '', Math.max(0, list.length - 1));
 }
 $('#btn-plan').onclick = openPlan;
 $('#btn-letter').onclick = openLetter;

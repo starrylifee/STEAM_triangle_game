@@ -1,22 +1,31 @@
 /* ═══════════════════════════════════════════════════
    2. 피자 자르기 — 기획 : 키위 맛 우유
-   손님이 말한 삼각형(예각·둔각)으로 둥근 피자를 가위질해 한 조각 낸다.
+   손님이 말한 삼각형으로 둥근 피자를 가위질해 조각을 낸다.
+   2차 (디버깅 페이퍼) : 난이도별 시간 · 직각 손님 · 뒤로 갈수록 여러 조각 주문 · 최소 넓이 · 피자 3종 · 나가기
    ═══════════════════════════════════════════════════ */
 
 class GamePizza extends GameBase {
   constructor() {
     super();
     this.paramSpec = [
-      { key: 'timeLimit',   label: '제한 시간',               orig: 60,  unit: '초', min: 20, max: 300, src: 'plan', note: '규칙 "1분 안에"' },
-      { key: 'goal',        label: '이기려면 자를 손님 수',     orig: 10,  unit: '명', min: 1,  max: 40,  src: 'plan', note: '규칙 "10명 이상"' },
-      { key: 'acuteRate',   label: '예각 주문 비율',           orig: 50,  unit: '%',  min: 0,  max: 100, src: 'mine', note: '"예각이나 둔각" — 비율은 없어서 반반' },
-      { key: 'rightTol',    label: '직각으로 보는 범위 (90° ±)', orig: 2,   unit: '°',  min: 0,  max: 10,  src: 'mine', note: '손으로 자르면 딱 90°가 안 나와서' },
-      { key: 'nearPenalty', label: '거의 직각이면 감점',        orig: 20,  unit: '점', min: 0,  max: 50,  src: 'mine', note: '90°와 6° 안쪽 차이' },
-      { key: 'outPenalty',  label: '꼭짓점이 피자 밖이면 감점',  orig: 20,  unit: '점', min: 0,  max: 50,  src: 'mine', note: '꼭짓점 하나마다' },
-      { key: 'smallPenalty',label: '너무 작은 조각 감점',        orig: 30,  unit: '점', min: 0,  max: 60,  src: 'mine', note: '가장 긴 변이 피자 지름의 1/4보다 짧을 때' }
+      { key: 'timeEasy',    label: '제한 시간 — 쉬움',          orig: 120, unit: '초', min: 20, max: 300, src: 'paper', note: '2차 페이퍼 "2분 정도"', v1: 60 },
+      { key: 'timeNormal',  label: '제한 시간 — 보통',          orig: 90,  unit: '초', min: 20, max: 300, src: 'paper', note: '2차 페이퍼 "1분 30초"', v1: 60 },
+      { key: 'timeHard',    label: '제한 시간 — 어려움',        orig: 60,  unit: '초', min: 20, max: 300, src: 'plan',  note: '기획서 "1분 안에"' },
+      { key: 'goal',        label: '이기려면 자를 손님 수',       orig: 10,  unit: '명', min: 1,  max: 40,  src: 'plan',  note: '규칙 "10명 이상"' },
+      { key: 'rightFrom',   label: '직각 손님이 오기 시작 (쉬움·보통)', orig: 4, unit: '번째', min: 1, max: 20, src: 'mine', note: '2차 페이퍼 "직각삼각형 피자 손님" · 어려움은 처음부터' },
+      { key: 'multiFrom',   label: '여러 조각 주문이 오기 시작',   orig: 7,  unit: '번째', min: 1, max: 20, src: 'mine', note: '2차 페이퍼 "단계가 올라갈수록 어려운 주문" + 선생님 제안 "둔각 하나 예각 두 개"' },
+      { key: 'minArea',     label: '조각 최소 넓이',              orig: 5,   unit: '% (피자 넓이)', min: 1, max: 30, src: 'teacher', note: '선생님 제안 "최소 면적은 어느 정도 이상"' },
+      { key: 'rightTol',    label: '예각·둔각 주문에서 직각으로 보는 범위', orig: 2, unit: '°', min: 0, max: 10, src: 'mine', note: '' },
+      { key: 'rightOk',     label: '직각 주문에서 봐주는 범위 (90° ±)', orig: 5, unit: '°', min: 1, max: 15, src: 'mine', note: '손으로 딱 90°는 어려워서' },
+      { key: 'nearPenalty', label: '거의 직각이면 감점',          orig: 20,  unit: '점', min: 0,  max: 50,  src: 'mine', note: '예각·둔각 주문에서 90°와 6° 안쪽' },
+      { key: 'outPenalty',  label: '꼭짓점이 피자 밖이면 감점',    orig: 20,  unit: '점', min: 0,  max: 50,  src: 'mine', note: '꼭짓점 하나마다' }
     ];
     this.resetParams();
     this.W = 1000; this.H = 600; this.cx = 500; this.cy = 300; this.R = 252;
+    this.LEVELS = [
+      { name: '쉬움', time: this.p.timeEasy }, { name: '보통', time: this.p.timeNormal }, { name: '어려움', time: this.p.timeHard }
+    ];
+    this.level = 1;
   }
 
   mount(stage) {
@@ -26,6 +35,7 @@ class GamePizza extends GameBase {
           <div class="pz-cust" id="pz-cust">
             <svg class="pz-face" id="pz-face" viewBox="0 0 120 120"></svg>
             <div class="pz-bubble" id="pz-bubble">…</div>
+            <div class="pz-need" id="pz-need"></div>
           </div>
           <div class="pz-last">
             <em>이번 조각</em>
@@ -61,14 +71,14 @@ class GamePizza extends GameBase {
             </g>
           </svg>
           <div class="pz-hud">
-            <div class="pz-timer"><em>남은 시간</em><b id="pz-time">1:00</b></div>
+            <div class="pz-level" id="pz-level">보통</div>
+            <div class="pz-timer"><em>남은 시간</em><b id="pz-time">1:30</b></div>
             <div class="pz-count"><em>자른 손님</em><b id="pz-served">0</b><span id="pz-goal">/ 10</span></div>
           </div>
           <button class="pz-redo" id="pz-redo" type="button">다시 자르기 <kbd>R</kbd></button>
         </div>
       </div>`;
     this.svg = $('.pz-svg', stage);
-    this.drawPizza();
     $('#pz-goal').textContent = `/ ${this.p.goal}`;
 
     const sv = this.svg;
@@ -82,21 +92,28 @@ class GamePizza extends GameBase {
     this.ready();
   }
 
+  /** 시작 화면 : 난이도 고르기 */
   ready() {
-    this.running = false;
-    this.served = 0; this.pieces = []; this.verts = []; this.busy = false;
+    this.running = false; this.clearTimers();
+    this.served = 0; this.custN = 0; this.pieces = []; this.verts = []; this.busy = false; this.log = [];
     $('#pz-served').textContent = '0'; $('#pz-log').innerHTML = '';
-    $('#pz-time').textContent = mmss(this.p.timeLimit);
     $('#pz-score').textContent = '—'; $('#pz-angles').innerHTML = '&nbsp;';
     this.newCustomer();
     Overlay.show({
       kicker: 'Pizza', title: '피자 자르기',
-      body: `<p class="ov-note">${mmss(this.p.timeLimit)} · 손님 ${this.p.goal}명</p>`,
-      actions: [{ label: '시작', key: 'Enter', primary: true, onClick: () => this.go() }]
+      body: `<p class="ov-note">손님 ${this.p.goal}명 · 쉬움 ${mmss(this.p.timeEasy)} · 보통 ${mmss(this.p.timeNormal)} · 어려움 ${mmss(this.p.timeHard)}</p>`,
+      actions: this.LEVELS.map((L, i) => ({ label: L.name, key: String(i + 1), primary: i === 1, onClick: () => this.go(i) }))
     });
   }
-  go() {
-    this.running = true; this.left = this.p.timeLimit;
+  go(level = this.level) {
+    this.level = level;
+    const L = this.LEVELS[level];
+    $('#pz-level').textContent = L.name;
+    this.served = 0; this.custN = 0; this.pieces = []; this.log = [];
+    $('#pz-served').textContent = '0'; $('#pz-log').innerHTML = '';
+    this.newCustomer();
+    this.running = true; this.left = L.time;
+    $('#pz-time').textContent = mmss(this.left);
     this.every(100, () => {
       if (this.paused || !this.running) return;
       this.left -= 0.1;
@@ -107,28 +124,70 @@ class GamePizza extends GameBase {
     });
   }
 
-  /* ── 피자 그리기 (디자인 2 : 올리브 눈 두 개 · 페퍼로니 웃는 입) ── */
-  drawPizza() {
+  /* ── 피자 3종 (2차 페이퍼 "피자 종류 여러 개", "더 화려하게") ── */
+  drawPizza(kind = 'face') {
     const g = $('#pz-pizza'); const { cx, cy, R } = this;
-    g.innerHTML = `
+    const base = `
       <circle cx="${cx}" cy="${cy}" r="${R}" fill="#D9934A"/>
       <circle cx="${cx}" cy="${cy}" r="${R - 4}" fill="#E6A85C"/>
+      ${Array.from({ length: 28 }, (_, i) => { const a = i / 28 * 6.283; return `<circle cx="${(cx + Math.cos(a) * (R - 12)).toFixed(1)}" cy="${(cy + Math.sin(a) * (R - 12)).toFixed(1)}" r="2.2" fill="#C47A36"/>`; }).join('')}
       <circle cx="${cx}" cy="${cy}" r="${R - 24}" fill="#C8432A"/>
-      <circle cx="${cx}" cy="${cy}" r="${R - 30}" fill="url(#pz-cheese)"/>
-      ${[[-60, -80], [70, -76]].map(([x, y]) => `
-        <circle cx="${cx + x}" cy="${cy + y}" r="30" fill="#2B2A2E"/><circle cx="${cx + x}" cy="${cy + y}" r="13" fill="#F6BF4E"/>`).join('')}
-      <ellipse cx="${cx + 4}" cy="${cy - 14}" rx="16" ry="13" fill="#B8331F"/>
-      ${[-110, -66, -22, 22, 66, 108].map((x, i) => {
-        const y = cy + 62 + Math.sin((i / 5) * Math.PI) * 30;
-        return `<circle cx="${cx + x}" cy="${y}" r="27" fill="#B8331F"/><circle cx="${cx + x - 7}" cy="${y - 6}" r="4" fill="#8E2414"/><circle cx="${cx + x + 8}" cy="${y + 5}" r="3" fill="#8E2414"/>`;
-      }).join('')}
-      ${[[-170, -10, 20], [160, -30, -30], [-120, 140, 50], [130, 150, -10], [-10, -170, 70], [180, 70, 10]].map(([x, y, r]) =>
-        `<path d="M0 -10 C9 -4 9 4 0 10 C-9 4 -9 -4 0 -10Z" fill="#4E8A3E" transform="translate(${cx + x} ${cy + y}) rotate(${r})"/>`).join('')}`;
+      <circle cx="${cx}" cy="${cy}" r="${R - 30}" fill="url(#pz-cheese)"/>`;
+    const leaf = (x, y, r, c = '#4E8A3E') => `<path d="M0 -10 C9 -4 9 4 0 10 C-9 4 -9 -4 0 -10Z" fill="${c}" transform="translate(${cx + x} ${cy + y}) rotate(${r})"/>`;
+    let top = '';
+    if (kind === 'face') {
+      // 디자인 2 : 올리브 눈 두 개 · 페퍼로니 웃는 입
+      top = `${[[-60, -80], [70, -76]].map(([x, y]) => `<circle cx="${cx + x}" cy="${cy + y}" r="30" fill="#2B2A2E"/><circle cx="${cx + x}" cy="${cy + y}" r="13" fill="#F6BF4E"/>`).join('')}
+        <ellipse cx="${cx + 4}" cy="${cy - 14}" rx="16" ry="13" fill="#B8331F"/>
+        ${[-110, -66, -22, 22, 66, 108].map((x, i) => { const y = cy + 62 + Math.sin((i / 5) * Math.PI) * 30;
+          return `<circle cx="${cx + x}" cy="${y}" r="27" fill="#B8331F"/><circle cx="${cx + x - 7}" cy="${y - 6}" r="4" fill="#8E2414"/><circle cx="${cx + x + 8}" cy="${y + 5}" r="3" fill="#8E2414"/>`; }).join('')}
+        ${[[-170, -10, 20], [160, -30, -30], [-120, 140, 50], [130, 150, -10], [-10, -170, 70], [180, 70, 10]].map(([x, y, r]) => leaf(x, y, r)).join('')}`;
+    } else if (kind === 'veggie') {
+      // 피망 · 양파 · 버섯 · 올리브 · 토마토
+      const spots = [[-140, -60], [-60, -150], [40, -120], [130, -70], [170, 40], [90, 120], [-20, 160], [-130, 110], [-170, 20], [0, -10], [-70, 40], [70, 20], [20, 80], [-40, -80]];
+      top = spots.map(([x, y], i) => {
+        const k = i % 5;
+        if (k === 0) return `<path d="M${cx + x - 16} ${cy + y} a16 14 0 1 1 32 0" fill="none" stroke="#3E8E3A" stroke-width="7" stroke-linecap="round"/>`;
+        if (k === 1) return `<circle cx="${cx + x}" cy="${cy + y}" r="17" fill="none" stroke="#B06BC8" stroke-width="4"/>`;
+        if (k === 2) return `<g transform="translate(${cx + x} ${cy + y})"><path d="M-14 0 a14 12 0 0 1 28 0Z" fill="#D8C7A8"/><rect x="-5" y="0" width="10" height="12" rx="3" fill="#C7B08A"/></g>`;
+        if (k === 3) return `<circle cx="${cx + x}" cy="${cy + y}" r="12" fill="#2B2A2E"/><circle cx="${cx + x}" cy="${cy + y}" r="5" fill="#F6BF4E"/>`;
+        return `<circle cx="${cx + x}" cy="${cy + y}" r="19" fill="#E2483A"/><circle cx="${cx + x}" cy="${cy + y}" r="11" fill="#F27A5E"/>`;
+      }).join('') + [[-100, -120, 30], [150, 100, -20], [-150, 60, 70]].map(([x, y, r]) => leaf(x, y, r)).join('');
+    } else {
+      // 하와이안 : 파인애플 · 햄 · 바질
+      const spots = [[-150, -40], [-90, -130], [10, -160], [110, -110], [160, -10], [120, 100], [20, 150], [-90, 130], [-160, 60], [-20, -50], [60, 10], [-50, 50], [10, 80], [80, -40]];
+      top = spots.map(([x, y], i) => i % 2
+        ? `<path d="M0 -15 L14 10 L-14 10Z" fill="#FFD447" stroke="#E9B52A" stroke-width="2" transform="translate(${cx + x} ${cy + y}) rotate(${i * 37})"/>`
+        : `<rect x="-14" y="-14" width="28" height="28" rx="5" fill="#E58A8A" stroke="#C96464" stroke-width="2" transform="translate(${cx + x} ${cy + y}) rotate(${i * 23})"/>`).join('')
+        + [[-60, -90, 10], [100, 40, -40], [-120, -10, 60], [40, 120, 20]].map(([x, y, r]) => leaf(x, y, r)).join('');
+    }
+    g.innerHTML = base + top;
   }
 
-  /* ── 손님 ─────────────────────────────────── */
+  /* ── 손님 · 주문 ─────────────────────────── */
+  makeOrder() {
+    const n = this.custN, hard = this.level === 2;
+    const kinds = ['acute', 'obtuse'];
+    if (hard || n >= this.p.rightFrom) kinds.push('right');
+    if (n >= this.p.multiFrom) {
+      // 여러 조각 : 2~3조각, 셋이면 "둔각 하나, 예각 두 개" 같은 모양
+      const cnt = n >= this.p.multiFrom + 2 ? 3 : 2;
+      const need = Array.from({ length: cnt }, () => pick(kinds));
+      return need.sort();
+    }
+    return [pick(kinds)];
+  }
+  orderText(need) {
+    if (need.length === 1) return `<b class="${need[0]}">${TRI[need[0]].name}</b> 피자 한 조각이요`;
+    const cnt = {}; need.forEach(k => cnt[k] = (cnt[k] || 0) + 1);
+    const word = ['', '하나', '두 개', '세 개'];
+    return Object.entries(cnt).map(([k, c]) => `<b class="${k}">${TRI[k].name}</b> ${word[c]}`).join(', ') + ' 주세요';
+  }
   newCustomer() {
-    this.order = Math.random() * 100 < this.p.acuteRate ? 'acute' : 'obtuse';
+    this.need = this.makeOrder(); this.got = []; this.partScores = [];
+    this.order = this.need[0];
+    $('#pz-holes').innerHTML = '';
+    this.drawPizza(pick(['face', 'veggie', 'hawaiian']));
     const hues = ['#E9C7A5', '#C99A74', '#8E6245', '#F0D3B8', '#B58563'];
     const hair = ['#2B2A2E', '#5A3B24', '#1F2530', '#7A4A2A'];
     const skin = pick(hues), h = pick(hair), style = rndInt(0, 2);
@@ -139,9 +198,14 @@ class GamePizza extends GameBase {
         : `<path d="M22 56 C26 26 94 26 98 56 C84 50 72 40 60 40 C48 40 36 50 22 56Z" fill="${h}"/><circle cx="60" cy="24" r="10" fill="${h}"/>`}
       <circle cx="46" cy="68" r="4" fill="#1D1F24"/><circle cx="74" cy="68" r="4" fill="#1D1F24"/>
       <path d="M48 84 Q60 92 72 84" stroke="#1D1F24" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
-    const b = $('#pz-bubble');
-    b.innerHTML = `<b class="${this.order}">${TRI[this.order].name}</b> 피자 한 조각이요`;
+    $('#pz-bubble').innerHTML = this.orderText(this.need);
+    this.renderNeed();
     $('#pz-cust').classList.remove('in'); void $('#pz-cust').offsetWidth; $('#pz-cust').classList.add('in');
+  }
+  renderNeed() {
+    const box = $('#pz-need');
+    if (this.need.length + this.got.length <= 1) { box.innerHTML = ''; return; }
+    box.innerHTML = this.got.map(k => `<span class="done ${k}">${TRI[k].name}</span>`).join('') + this.need.map(k => `<span class="${k}">${TRI[k].name}</span>`).join('');
   }
 
   /* ── 가위질 ────────────────────────────────── */
@@ -170,8 +234,7 @@ class GamePizza extends GameBase {
     if (!this.dragging) return;
     this.dragging = false;
     if (!this.running || this.busy) return;
-    const p = this.toSvg(e);
-    this.addVertex(p);
+    this.addVertex(this.toSvg(e));
   }
   /** 꼭짓점 하나 추가 (테스트에서도 직접 부름) */
   addVertex(p) {
@@ -197,28 +260,38 @@ class GamePizza extends GameBase {
     this.verts = []; $('#pz-cuts').innerHTML = ''; SFX.tick();
   }
 
-  /** 점수 계산 — 테스트에서도 쓴다 */
+  /** 한 조각 판정 — 테스트에서도 쓴다. { ang, kind, score, why, retry } */
   judge(pts) {
     const ang = anglesOf(pts), mx = Math.max(...ang);
-    const kind = classify(ang, this.p.rightTol);
-    const out = { ang, kind, score: 0, why: [] };
-    if (kind !== this.order) { out.why.push(kind === 'right' ? '직각삼각형' : TRI[kind].full); return out; }
+    const pizzaArea = Math.PI * this.R * this.R;
+    const out = { ang, kind: null, score: 0, why: [], retry: null };
+    if (areaOf(pts) < pizzaArea * this.p.minArea / 100) { out.retry = '더 크게'; return out; }
+    const holes = this.got.length ? this.holes || [] : [];
+    const c = centroid(pts);
+    if (holes.some(h => inTriStrict(c[0], c[1], h) || pts.some(q => inTriStrict(q[0], q[1], h, 4)) || h.some(q => inTriStrict(q[0], q[1], pts, 4)))) { out.retry = '겹쳐요'; return out; }
+    out.kind = this.need.includes('right') && Math.abs(mx - 90) <= this.p.rightOk ? 'right' : classify(ang, this.p.rightTol);
+    if (!this.need.includes(out.kind)) { out.why.push(TRI[out.kind].full); return out; }
     let s = 100;
-    const outside = pts.filter(p => Math.hypot(p[0] - this.cx, p[1] - this.cy) > this.R).length;
+    const outside = pts.filter(q => Math.hypot(q[0] - this.cx, q[1] - this.cy) > this.R).length;
     if (outside) { s -= this.p.outPenalty * outside; out.why.push(`피자 밖 ${outside}곳`); }
-    const longest = Math.max(...pts.map((p, i) => Math.hypot(p[0] - pts[(i + 1) % 3][0], p[1] - pts[(i + 1) % 3][1])));
-    if (longest < this.R * 2 / 4) { s -= this.p.smallPenalty; out.why.push('너무 작아'); }
-    if (Math.abs(mx - 90) < 6) { s -= this.p.nearPenalty; out.why.push('거의 직각'); }
+    if (out.kind === 'right') { const d = Math.abs(mx - 90); s -= Math.round(d * 8); if (d >= 1) out.why.push(`${Math.round(mx)}°`); }
+    else if (Math.abs(mx - 90) < 6) { s -= this.p.nearPenalty; out.why.push('거의 직각'); }
     out.score = Math.max(10, s);
     return out;
   }
 
   cut() {
-    this.busy = true;
     const pts = this.verts.slice();
     const r = this.judge(pts);
+    if (r.retry) {
+      SFX.bad(); Toast.show(r.retry, 'bad');
+      this.verts = []; $('#pz-cuts').innerHTML = '';
+      return;
+    }
+    this.busy = true;
     // 구멍 + 떨어져 나가는 조각
     svgEl('polygon', { points: ptsAttr(pts), class: 'pz-hole' }, $('#pz-holes'));
+    this.holes = (this.got.length ? this.holes : []).concat([pts]);
     const piece = $('#pz-piece'); piece.innerHTML = '';
     const clipId = 'pzc' + Date.now();
     const cp = svgEl('clipPath', { id: clipId }, piece);
@@ -229,9 +302,8 @@ class GamePizza extends GameBase {
     piece.classList.remove('fly'); piece.style.transform = '';
     $('#pz-cuts').innerHTML = '';
 
-    // 각 표시
     const marks = $('#pz-marks'); marks.innerHTML = '';
-    const gx = (pts[0][0] + pts[1][0] + pts[2][0]) / 3, gy = (pts[0][1] + pts[1][1] + pts[2][1]) / 3;
+    const [gx, gy] = centroid(pts);
     pts.forEach((p, i) => {
       const dx = gx - p[0], dy = gy - p[1], d = Math.hypot(dx, dy) || 1;
       const t = svgEl('text', { x: p[0] + dx / d * 40, y: p[1] + dy / d * 40 + 8, class: 'pz-deg' }, marks);
@@ -241,32 +313,39 @@ class GamePizza extends GameBase {
     const ok = r.score > 0;
     $('#pz-score').textContent = r.score;
     $('#pz-score').className = ok ? (r.score === 100 ? 'perfect' : '') : 'zero';
-    $('#pz-angles').innerHTML = `<span class="k ${r.kind}">${r.kind === 'right' ? '직각삼각형' : TRI[r.kind].full}</span>${r.why.length && ok ? ' · ' + r.why.join(', ') : ''}`;
+    $('#pz-angles').innerHTML = `<span class="k ${r.kind}">${TRI[r.kind].full}</span>${r.why.length && ok ? ' · ' + r.why.join(', ') : ''}`;
     const pop = svgEl('text', { x: gx, y: gy - 60, class: 'pz-pop' + (ok ? '' : ' zero') }, marks);
     pop.textContent = r.score;
-    if (ok) { SFX.good(); this.served++; $('#pz-served').textContent = this.served; }
-    else { SFX.bad(); Toast.show(`${TRI[this.order].name} 아님`, 'bad'); }
-    this.pieces.push({ order: this.order, kind: r.kind, score: r.score, ang: r.ang.map(Math.round) });
     this.addLog(pts, r, ok);
+    this.after(900, () => { piece.style.transform = `translate(${-gx + 40}px, ${-gy + 120}px) scale(.35)`; piece.classList.add('fly'); });
 
-    this.after(900, () => {
-      piece.style.transform = `translate(${-gx + 40}px, ${-gy + 120}px) scale(.35)`;
-      piece.classList.add('fly');
-    });
+    let done = false;
+    if (ok) {
+      this.need.splice(this.need.indexOf(r.kind), 1); this.got.push(r.kind); this.partScores.push(r.score);
+      this.renderNeed();
+      if (this.need.length) { SFX.good(); Toast.show(`${this.need.length}조각 더`, 'good'); }
+      else { done = true; this.served++; $('#pz-served').textContent = this.served; SFX.good(); }
+    } else {
+      done = true; SFX.bad(); Toast.show(`${r.kind ? TRI[r.kind].name : ''} 아님`, 'bad');
+    }
+    if (done) {
+      const avg = ok ? Math.round(this.partScores.reduce((a, b) => a + b, 0) / this.partScores.length) : 0;
+      this.pieces.push({ need: this.got.concat(this.need), ok, score: avg, n: this.got.length + (ok ? 0 : 1) });
+      this.log.push({ cust: this.custN + 1, ok, score: avg });
+    }
     this.after(1500, () => {
       piece.innerHTML = ''; piece.classList.remove('fly'); piece.style.transform = '';
-      marks.innerHTML = ''; $('#pz-holes').innerHTML = '';
-      this.verts = []; this.busy = false;
-      if (this.running) this.newCustomer();
+      marks.innerHTML = ''; this.verts = []; this.busy = false;
+      if (done && this.running) { this.custN++; this.newCustomer(); }
     });
   }
   addLog(pts, r, ok) {
     const log = $('#pz-log');
-    const k = 26 / Math.max(...pts.map(p => Math.hypot(p[0] - pts[0][0], p[1] - pts[0][1])), 1);
-    const gx = (pts[0][0] + pts[1][0] + pts[2][0]) / 3, gy = (pts[0][1] + pts[1][1] + pts[2][1]) / 3;
+    const [gx, gy] = centroid(pts);
+    const k = 26 / Math.max(...pts.map(p => Math.hypot(p[0] - gx, p[1] - gy)), 1);
     const mini = pts.map(p => [(p[0] - gx) * k, (p[1] - gy) * k]);
     const item = el('div', 'pz-li' + (ok ? '' : ' no'), `
-      <svg viewBox="-20 -20 40 40"><polygon points="${ptsAttr(mini)}" class="${r.kind}"/></svg>
+      <svg viewBox="-28 -28 56 56"><polygon points="${ptsAttr(mini)}" class="${r.kind}"/></svg>
       <b>${r.score}</b>`);
     log.prepend(item);
     while (log.children.length > 12) log.lastChild.remove();
@@ -276,14 +355,17 @@ class GamePizza extends GameBase {
     if (!this.running) return;
     this.running = false; this.clearTimers();
     const n = this.served, win = n >= this.p.goal;
-    const good = this.pieces.filter(x => x.score > 0);
+    const good = this.pieces.filter(x => x.ok);
     const avg = good.length ? Math.round(good.reduce((s, x) => s + x.score, 0) / good.length) : 0;
-    this.lastResult = { served: n, tried: this.pieces.length, avg, win };
+    this.lastResult = { served: n, tried: this.pieces.length, avg, win, level: this.level };
     win ? SFX.win() : SFX.lose();
     Overlay.show({
       kicker: win ? 'You win' : 'Time up', title: win ? '이겼다!' : '종료',
-      body: statsHTML([[`${n}명`, '자른 손님'], [this.pieces.length - n, '틀린 조각'], [avg || '—', '평균 점수']]),
-      actions: [{ label: '다시', key: 'Enter', primary: true, onClick: () => { this.clearTimers(); this.ready(); } }]
+      body: statsHTML([[`${n}명`, '자른 손님'], [this.pieces.length - n, '틀린 손님'], [avg || '—', '평균 점수']]),
+      actions: [
+        { label: '다시', key: 'Enter', primary: true, onClick: () => this.ready() },
+        { label: '나가기', key: 'Escape', onClick: () => backHome() }
+      ]
     });
   }
   destroy() { this.running = false; super.destroy(); }

@@ -72,18 +72,18 @@
 .rt-tgt-now { fill: rgba(242,237,227,.12); stroke: var(--paper); stroke-width: 2.5; }
 .rt-tgt-empty { font-family: var(--fm); font-size: 44px; font-weight: 800; fill: var(--dim); text-anchor: middle; }
 .rt-pad { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.rt-row { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rt-row { flex: 1; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
 .rt-btn {
   position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 50px; border-radius: 12px; border: 1px solid var(--line2); background: var(--bg2);
-  font-size: 17px; font-weight: 650; cursor: pointer; color: #D5D0C6;
+  font-size: 15px; font-weight: 650; cursor: pointer; color: #D5D0C6; white-space: nowrap;
   transition: background .15s, transform .12s;
 }
 .rt-btn b { color: var(--paper); font-weight: 850; }
-.rt-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rt-btn svg { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .rt-btn:hover { background: var(--bg3); }
 .rt-btn:active { transform: scale(.97); background: var(--bg4); }
-.rt-btn kbd { position: absolute; top: 6px; right: 6px; min-width: 20px; height: 20px; font-size: 11px; }
+.rt-btn kbd { position: absolute; top: -8px; right: -4px; min-width: 20px; height: 20px; font-size: 11px; background: var(--bg); }
 
 /* ══ 2. 피자 자르기 ═══════════════════════════ */
 .pz { height: 100%; display: grid; grid-template-columns: 300px 1fr; gap: 12px; padding: 12px; }
@@ -285,3 +285,15 @@
 .posters.n5 .poster-info h2 { font-size: 22px; }
 .posters.n5 .poster-line { font-size: 14px; }
 .posters.n5 .tri-tag { height: 24px; padding: 0 8px; font-size: 12px; }
+
+/* 2차 : 피자 주문 칩 · 난이도 · 물고기 목숨 */
+.pz-need { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pz-need span { padding: 4px 10px; border-radius: 999px; border: 1.5px solid var(--line3); font-size: 14px; font-weight: 800; }
+.pz-need span.acute { border-color: var(--acute); } .pz-need span.right { border-color: var(--right); } .pz-need span.obtuse { border-color: var(--obtuse); }
+.pz-need span.done { opacity: .35; text-decoration: line-through; }
+.pz-bubble b.right { color: #2F63D8; }
+.pz-level { align-self: stretch; display: grid; place-items: center; padding: 0 14px; border-radius: 14px; background: rgba(12,14,18,.82); border: 1px solid var(--line); font-size: 15px; font-weight: 800; }
+.fs-lives { display: flex; gap: 3px; padding: 6px 10px; border-radius: 12px; background: rgba(12,14,18,.85); }
+.fs-lives svg { width: 24px; height: 24px; }
+.fs-lives path { fill: rgba(242,237,227,.18); }
+.fs-lives .on path { fill: var(--acute); }

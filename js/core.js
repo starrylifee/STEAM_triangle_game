@@ -175,6 +175,8 @@ const Overlay = {
   keyHandler: null,
   /** opt: { kicker, title, body(html), actions: [{label, key, primary, onClick}] } */
   show(opt) {
+    // 기획안·편지 창이 열려 있으면 닫는다 (결과 창이 그 뒤에 가려지지 않게)
+    if (!$('#modal').hidden) { $('#modal').hidden = true; resumeGame(); }
     $('#ov-kicker').textContent = opt.kicker || '';
     $('#ov-title').textContent = opt.title || '';
     $('#ov-body').innerHTML = opt.body || '';
@@ -187,7 +189,9 @@ const Overlay = {
     });
     $('#overlay').hidden = false;
     this.keyHandler = (e) => {
-      const hit = (opt.actions || []).find(a => a.key && (e.key === a.key || (a.key === 'Enter' && e.key === 'Enter')));
+      const acts = opt.actions || [];
+      // 엔터는 항상 진행 : 엔터가 따로 없으면 기본(primary) 버튼
+      const hit = acts.find(a => a.key && e.key === a.key) || (e.key === 'Enter' ? acts.find(a => a.primary) : null);
       if (hit) { e.preventDefault(); e.stopPropagation(); this.hide(); hit.onClick && hit.onClick(); }
     };
     window.addEventListener('keydown', this.keyHandler, true);

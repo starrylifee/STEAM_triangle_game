@@ -6,7 +6,7 @@ const ROOT = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');
 const files = ['core', 'data', 'games/rotate', 'games/pizza', 'games/fish', 'pieces', 'games/shape', 'games/tangram', 'boot'];
 const code = files.map(f => fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8')).join('\n;\n')
-  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify, sameSpot, sameShape, centroid };';
+  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify, areaOf, sameSpot, sameShape, centroid };';
 
 const dom = new JSDOM(html, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'http://localhost/' });
 const w = dom.window;
@@ -36,7 +36,12 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   await sleep(1000);
   check(ovTitle() === '쉬움 모드 클리어', `쉬움 클리어 (${g.missions.length}미션, 버튼 ${presses}번)`);
   clickOv(0);
-  check(g.mode === 'normal' && g.tris.length === 30, `보통 모드로 넘어감, 삼각형 ${g.tris.length}개`);
+  check(g.mode === 'normal' && g.tris.length === 15, `보통 모드로 넘어감, 삼각형 ${g.tris.length}개`);
+  while (!g.missions.every(m => m.done)) { const t = g.tris.find(x => g.pendingFor(x)); g.select(t); const m = g.pendingFor(t); g.turn(m.dir * m.n - t.net); }
+  await sleep(1000);
+  check(ovTitle() === '보통 모드 클리어', `보통 클리어 → ${ovTitle()}`);
+  clickOv(0);
+  check(g.mode === 'hard' && g.tris.length === 30, `어려움 모드로 넘어감, 삼각형 ${g.tris.length}개`);
   const nums = {}; g.tris.forEach(t => { nums[t.cls] = (nums[t.cls] || 0) + 1; });
   console.log('     종류별 수', JSON.stringify(nums));
   // 되돌려 맞추기 : 오른쪽 3칸 넘친 뒤 왼쪽으로 고치기
@@ -46,13 +51,19 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
     const t = g.tris.find(x => g.pendingFor(x)); g.select(t); const m = g.pendingFor(t); g.turn(m.dir * m.n - t.net);
   }
   await sleep(1000);
-  check(ovTitle() === '클리어!', `보통 클리어 — 목표 ${g.done}/${g.missions.length}`);
+  check(ovTitle() === '클리어!', `어려움 클리어 — 목표 ${g.done}/${g.missions.length}`);
   clickOv(0);
+  // 5번 틀리면 처음으로
+  for (let i = 0; i < g.p.missLimit; i++) { const w = g.tris.find(t => !g.pendingFor(t) && !t.locked); g.select(w); }
+  await sleep(700);
+  check(ovTitle() === '틀려서 처음으로 초기화됩니다', `실수 ${g.p.missLimit}번 → ${ovTitle()}`);
+  clickOv(0);
+  check(g.miss === 0 && !g.over, '처음부터 다시 시작');
 
   // 수치 : 아무거나 누르는 전략 (종류를 모르고 번호만 맞춰 찍기 / 완전 무작위)
   let missRand = 0, missNum = 0, fourCnt = 0, total = 0; const RUNS = 300;
   for (let r = 0; r < RUNS; r++) {
-    g.start('normal');
+    g.start('hard');
     g.missions.forEach(m => { total++; if (m.n === 4) fourCnt++; });
     // 완전 무작위
     const left = g.missions.map(m => m);
@@ -76,11 +87,13 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   console.log('\n[2] 피자 자르기');
   A.enterGame(2);
   g = A.cur().game;
-  check(ovTitle() === '피자 자르기', '시작 화면');
-  clickOv(0);
-  check(g.running, '시작');
+  check(ovTitle() === '피자 자르기', '시작 화면 (난이도 고르기)');
+  clickOv(1);
+  check(g.running && g.left === 90, `보통 → ${g.left}초`);
   const cutAs = (cls, R = 150) => {
-    const t = A.makeTriangle(cls, R, { acuteMax: 75, obtuseMin: 110 });
+    // 최소 넓이(피자의 5%)를 넘는 조각이 나올 때까지 다시 만든다 (R 이 작으면 일부러 작은 조각)
+    let t;
+    for (let k = 0; k < 200; k++) { t = A.makeTriangle(cls, R, { acuteMax: 75, obtuseMin: 110, obtuseMax: 125 }); if (R < 60 || A.areaOf(t.pts) > Math.PI * g.R * g.R * 0.06) break; }
     t.pts.forEach(p => g.addVertex([g.cx + p[0], g.cy + p[1]]));
   };
   for (let i = 0; i < 4; i++) {
@@ -91,12 +104,25 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   }
   const ord = g.order; cutAs(ord === 'acute' ? 'obtuse' : 'acute');
   check(g.pieces.at(-1).score === 0, '다른 종류 → 0점'); await sleep(1600);
-  cutAs(g.order, 40); check(g.pieces.at(-1).score === 70, `작은 조각 → ${g.pieces.at(-1).score}점`); await sleep(1600);
+  { const before = g.pieces.length; cutAs(g.order, 40); check(g.pieces.length === before && g.verts.length === 0 && !g.busy, '최소 넓이보다 작은 조각 → 다시 자르기'); }
   // 피자 밖 꼭짓점
   const t2 = A.makeTriangle(g.order, 300, { acuteMax: 75, obtuseMin: 110 });
   t2.pts.forEach(p => g.addVertex([g.cx + p[0], g.cy + p[1]]));
-  console.log('     큰 조각(피자 밖으로 나감) →', g.pieces.at(-1).score, '점', g.pieces.at(-1).kind);
+  console.log('     큰 조각(피자 밖으로 나감) →', g.pieces.at(-1).score, '점');
   await sleep(1600);
+  // 여러 조각 주문 : 한 피자에서 겹치지 않게 차례로 자른다
+  g.custN = g.p.multiFrom + 2; g.newCustomer();
+  check(g.need.length === 3, `여러 조각 주문 : ${g.need.join(', ')}`);
+  {
+    // 피자 안 가로 세 줄(위·가운데·아래)에 한 조각씩. 모양은 직접 정한다 (모두 최소 넓이 이상)
+    const SH = { acute: [[-80, 69], [80, 69], [0, -69]], obtuse: [[-130, 40], [130, 40], [0, -40]], right: [[-90, 60], [90, 60], [-90, -60]] };
+    const rows = [-140, 0, 140];
+    for (let k = 0; k < 3 && g.need.length; k++) {
+      SH[g.need[0]].forEach(([x, y]) => g.addVertex([g.cx + x, g.cy + rows[k] + y]));
+      await sleep(1600);
+    }
+    check(g.pieces.at(-1).ok && g.pieces.at(-1).n === 3, `세 조각 모두 맞게 → 손님 1명 (점수 ${g.pieces.at(-1).score}, ${JSON.stringify(g.pieces.at(-1))})`);
+  }
   // 시간 끝
   g.left = 0.05; await sleep(300);
   check(/이겼다|종료/.test(ovTitle() || ''), `시간 끝 → ${ovTitle()} (자른 손님 ${g.served})`);
@@ -130,8 +156,9 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
     check(ovTitle() === '다 잡았다!', `${map} 5마리 → ${ovTitle()}`);
     clickOv(0);
     // 틀린 물고기
-    const f = g.fish.find(x => x.cls !== g.target); g.catchFish(f); await sleep(1800);
-    check(ovTitle() === '게임 실패', `${map} 틀린 물고기 → ${ovTitle()}`);
+    const lives = g.p[map + 'Lives'];
+    for (let i = 0; i < lives; i++) { const f = g.fish.find(x => !x.caught && x.cls !== g.target); g.catchFish(f); await sleep(2400); }
+    check(ovTitle() === '게임 실패', `${map} 목숨 ${lives}개 다 쓰면 → ${ovTitle()}`);
     clickOv(1);
     // 각 범위
     let acMax = 0, obMin = 180;

@@ -19,7 +19,10 @@ class GameFish extends GameBase {
       { key: 'deepGap',    label: '심해: 직각과 떨어진 정도',    orig: 6,  unit: '°',  min: 1, max: 40, src: 'mine', note: '예각은 84° 이하, 둔각은 96° 이상' },
       { key: 'seaSpeed',   label: '바다 헤엄 속도',             orig: 55, unit: '',   min: 0, max: 300, src: 'mine', note: '1초에 움직이는 거리' },
       { key: 'riverSpeed', label: '강 헤엄 속도',               orig: 90, unit: '',   min: 0, max: 300, src: 'mine', note: '' },
-      { key: 'deepSpeed',  label: '심해 헤엄 속도',             orig: 120, unit: '',  min: 0, max: 300, src: 'mine', note: '' }
+      { key: 'deepSpeed',  label: '심해 헤엄 속도',             orig: 180, unit: '',  min: 0, max: 300, src: 'paper', note: '2차 페이퍼 3장 "어려움은 더 빠르게"', v1: 120 },
+      { key: 'seaLives',   label: '바다 목숨',                  orig: 4,  unit: '개', min: 1, max: 9, src: 'paper', note: '2차 페이퍼 "바다 4개"', v1: 1 },
+      { key: 'riverLives', label: '강 목숨',                    orig: 3,  unit: '개', min: 1, max: 9, src: 'paper', note: '2차 페이퍼 "강 3개"', v1: 1 },
+      { key: 'deepLives',  label: '심해 목숨',                  orig: 2,  unit: '개', min: 1, max: 9, src: 'paper', note: '2차 페이퍼 "심해 2개"', v1: 1 }
     ];
     this.resetParams();
     this.W = 1600; this.H = 900; this.FS = 0.74;   // FS : 물고기 몸 크기
@@ -66,6 +69,7 @@ class GameFish extends GameBase {
           <div class="fs-right">
             <span class="fs-map" id="fs-map"></span>
             <div class="fs-casts" id="fs-casts"></div>
+            <div class="fs-lives" id="fs-lives"></div>
           </div>
         </div>
         <div class="fs-home" id="fs-home">
@@ -156,6 +160,7 @@ class GameFish extends GameBase {
   /* ── 판 시작 ───────────────────────────────── */
   start(id) {
     this.map = id; this.caught = 0; this.over = false; this.busy = false; this.log = [];
+    this.lives = this.p[id + 'Lives'];
     this.stage.querySelector('.fs').className = 'fs map-' + id;
     $('#fs-home').hidden = true; $('#fs-hud').hidden = false;
     $('#fs-map').textContent = `${this.MAPS[id].name} · ${this.MAPS[id].lv}`;
@@ -286,6 +291,8 @@ class GameFish extends GameBase {
   renderCasts() {
     $('#fs-casts').innerHTML = Array.from({ length: this.p.casts }, (_, i) => `<i class="${i < this.caught ? 'on' : ''}"></i>`).join('')
       + `<b>${this.caught}/${this.p.casts}</b>`;
+    $('#fs-lives').innerHTML = Array.from({ length: this.p[this.map + 'Lives'] }, (_, i) =>
+      `<svg viewBox="0 0 24 24" class="${i < this.lives ? 'on' : ''}"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>`).join('');
   }
 
   catchFish(f) {
@@ -316,8 +323,19 @@ class GameFish extends GameBase {
           this.busy = false; this.newTarget();
         });
       } else {
-        SFX.bad();
-        this.after(1300, () => this.finish(false, f));
+        // 2차 : 목숨이 남아 있으면 계속한다
+        this.lives--; this.renderCasts(); SFX.bad();
+        if (this.lives <= 0) return this.after(1300, () => this.finish(false, f));
+        Toast.show(`${TRI[f.cls].name}였어 · 목숨 ${this.lives}`, 'bad');
+        this.after(1300, () => {
+          f.g.style.transition = 'opacity .4s'; f.g.style.opacity = '0';
+          this.setLine(f.x, this.MAPS[this.map].surface + 40);
+        });
+        this.after(1800, () => {
+          f.g.remove(); this.fish = this.fish.filter(x => x !== f); $('#fs-fx').innerHTML = '';
+          this.spawn(pick(TRI_KEYS), { lane: f.lane, x: f.x0 - f.dir * (this.W + 280) });
+          this.busy = false; this.newTarget();
+        });
       }
     });
   }

@@ -1,11 +1,11 @@
 {
   "R1": {
-    "randMissPerTarget": 14.3,
-    "numMissPerTarget": 0.98,
-    "fourRate": 25
+    "randMissPerTarget": 14.2,
+    "numMissPerTarget": 1.02,
+    "fourRate": 19
   },
   "R2": {
-    "randAcute": 26,
+    "randAcute": 25,
     "randObtuse": 69,
     "randRight": 6
   },
@@ -26,11 +26,11 @@
   },
   "R4": {
     "turnsPerProblem": [
+      7,
+      7,
+      12,
       8,
-      4,
-      10,
-      6,
-      6
+      9
     ],
     "piecesPerProblem": [
       3,

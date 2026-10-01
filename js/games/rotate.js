@@ -10,16 +10,27 @@ class GameRotate extends GameBase {
       { key: 'stepDeg',      label: '1칸에 돌아가는 각',        orig: 90, unit: '°',  min: 15, max: 180, src: 'mine', note: '기획서에 없음. 교과서 「돌리기」처럼 90°로 정함' },
       { key: 'easyCount',    label: '쉬움 모드 삼각형 수',       orig: 6,  unit: '개', min: 3,  max: 12,  src: 'draw', note: '디자인 2 그림의 삼각형 6개' },
       { key: 'easyMissions', label: '쉬움 모드 미션 수',         orig: 4,  unit: '개', min: 1,  max: 10,  src: 'mine', note: '기획서에 없음' },
-      { key: 'normalCount',  label: '보통 모드 삼각형 수',       orig: 30, unit: '개', min: 9,  max: 40,  src: 'plan', note: '규칙 "30여 개"' },
-      { key: 'normalGoal',   label: '보통 모드 목표 수',         orig: 7,  unit: '개', min: 1,  max: 15,  src: 'draw', note: '디자인 "목표 달성 1/7"' },
-      { key: 'maxTurn',      label: '버튼 칸 수',               orig: 4,  unit: '칸', min: 1,  max: 8,   src: 'draw', note: '디자인의 1칸~4칸 버튼' },
+      { key: 'normalCount',  label: '보통 모드 삼각형 수',       orig: 15, unit: '개', min: 6,  max: 30,  src: 'paper', note: '2차 페이퍼 "보통 모드를 새로 만들어 삼각형을 더 적게"', v1: '—' },
+      { key: 'normalGoal',   label: '보통 모드 목표 수',         orig: 5,  unit: '개', min: 1,  max: 15,  src: 'mine', note: '' },
+      { key: 'hardCount',    label: '어려움 모드 삼각형 수',     orig: 30, unit: '개', min: 9,  max: 40,  src: 'plan', note: '1차의 보통 모드 = 규칙 "30여 개"' },
+      { key: 'hardGoal',     label: '어려움 모드 목표 수',       orig: 7,  unit: '개', min: 1,  max: 15,  src: 'draw', note: '디자인 "목표 달성 1/7"' },
+      { key: 'maxTurn',      label: '버튼 칸 수',               orig: 5,  unit: '칸', min: 1,  max: 8,   src: 'paper', note: '2차 페이퍼 "오른쪽 5칸·왼쪽 5칸 추가"', v1: 4 },
+      { key: 'missLimit',    label: '처음으로 돌아가는 실수 수',  orig: 5,  unit: '번', min: 1,  max: 20,  src: 'paper', note: '기획자 2차 페이퍼 "5번 틀리면 처음으로 초기화"', v1: '없음' },
       { key: 'easyAcuteMax', label: '쉬움: 예각삼각형의 가장 큰 각', orig: 72, unit: '°', min: 61, max: 89, src: 'mine', note: '직각과 헷갈리지 않게' },
       { key: 'easyObtuseMin',label: '쉬움: 둔각의 최소 크기',      orig: 112, unit: '°', min: 91, max: 150, src: 'mine', note: '직각과 헷갈리지 않게' },
-      { key: 'acuteMax',     label: '보통: 예각삼각형의 가장 큰 각', orig: 80, unit: '°', min: 61, max: 89, src: 'mine', note: '' },
-      { key: 'obtuseMin',    label: '보통: 둔각의 최소 크기',      orig: 100, unit: '°', min: 91, max: 150, src: 'mine', note: '' }
+      { key: 'normalAcuteMax', label: '보통: 예각삼각형의 가장 큰 각', orig: 76, unit: '°', min: 61, max: 89, src: 'mine', note: '' },
+      { key: 'normalObtuseMin',label: '보통: 둔각의 최소 크기',      orig: 104, unit: '°', min: 91, max: 150, src: 'mine', note: '' },
+      { key: 'acuteMax',     label: '어려움: 예각삼각형의 가장 큰 각', orig: 80, unit: '°', min: 61, max: 89, src: 'mine', note: '' },
+      { key: 'obtuseMin',    label: '어려움: 둔각의 최소 크기',      orig: 100, unit: '°', min: 91, max: 150, src: 'mine', note: '' }
     ];
     this.resetParams();
     this.W = 1300; this.H = 600;
+    const P = this.p;
+    this.MODES = {
+      easy:   { name: '쉬움 모드',   next: 'normal', count: P.easyCount,   cols: 3, numbered: false, k: 0.36, jit: 18, opt: { acuteMax: P.easyAcuteMax, obtuseMin: P.easyObtuseMin } },
+      normal: { name: '보통 모드',   next: 'hard',   count: P.normalCount, cols: 5, numbered: true,  k: 0.40, jit: 10, goal: P.normalGoal, opt: { acuteMax: P.normalAcuteMax, obtuseMin: P.normalObtuseMin } },
+      hard:   { name: '어려움 모드', next: null,     count: P.hardCount,   cols: 6, numbered: true,  k: 0.46, jit: 6,  goal: P.hardGoal,   opt: { acuteMax: P.acuteMax, obtuseMin: P.obtuseMin } }
+    };
   }
 
   mount(stage) {
@@ -40,11 +51,12 @@ class GameRotate extends GameBase {
           <div class="rt-plaque" id="rt-plaque">보통 모드</div>
           <div class="rt-hud">
             <span class="rt-chip"><em>시간</em><b id="rt-time">0:00</b></span>
-            <span class="rt-chip"><em>실수</em><b id="rt-miss">0</b></span>
+            <span class="rt-chip"><em>실수</em><b id="rt-miss">0</b><em>/ ${this.p.missLimit}</em></span>
           </div>
           <div class="rt-modes" id="rt-modes">
-            <button type="button" data-mode="easy">쉬움 모드</button>
-            <button type="button" data-mode="normal">보통 모드</button>
+            <button type="button" data-mode="easy">쉬움</button>
+            <button type="button" data-mode="normal">보통</button>
+            <button type="button" data-mode="hard">어려움</button>
           </div>
         </div>
         <aside class="rt-mission">
@@ -92,23 +104,20 @@ class GameRotate extends GameBase {
 
   /* ── 판 만들기 ─────────────────────────────── */
   start(mode) {
-    this.mode = mode;
+    this.mode = mode; const M = this.M = this.MODES[mode];
     this.tris = []; this.selected = null; this.miss = 0; this.done = 0;
     this.t0 = performance.now(); this.pausedAt = 0; this.pausedTotal = 0; this.over = false;
     this.gTris.innerHTML = ''; this.gLabels.innerHTML = '';
-    $('#rt-plaque').textContent = mode === 'easy' ? '쉬움 모드' : '보통 모드';
+    $('#rt-plaque').textContent = M.name;
     $$('#rt-modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
 
-    const easy = mode === 'easy';
-    const count = easy ? this.p.easyCount : this.p.normalCount;
-    const opt = easy ? { acuteMax: this.p.easyAcuteMax, obtuseMin: this.p.easyObtuseMin }
-                     : { acuteMax: this.p.acuteMax, obtuseMin: this.p.obtuseMin };
+    const count = M.count, opt = M.opt;
     // 종류를 고르게 섞는다
     const kinds = shuffle(Array.from({ length: count }, (_, i) => TRI_KEYS[i % 3]));
-    const cols = easy ? 3 : 6, rows = Math.ceil(count / cols);
+    const cols = M.cols, rows = Math.ceil(count / cols);
     const top = 64, bottom = 8;   // 위쪽은 모드 팻말·상태 칩 자리
     const cw = this.W / cols, ch = (this.H - top - bottom) / rows;
-    const S = Math.min(cw, ch) * (easy ? 0.36 : 0.46);   // 무게중심~꼭짓점 최대 거리
+    const S = Math.min(cw, ch) * M.k;   // 무게중심~꼭짓점 최대 거리
     const cells = shuffle(Array.from({ length: cols * rows }, (_, i) => i)).slice(0, count);
     const numbering = { acute: 0, right: 0, obtuse: 0 };
 
@@ -118,7 +127,7 @@ class GameRotate extends GameBase {
       const far = Math.max(...t.pts.map(p => Math.hypot(p[0], p[1])));
       t.pts = t.pts.map(p => [p[0] * S / far, p[1] * S / far]);
       const cell = cells[i], cx = (cell % cols + 0.5) * cw, cy = top + (Math.floor(cell / cols) + 0.5) * ch;
-      const jit = easy ? 18 : 6;
+      const jit = M.jit;
       const tri = {
         id: i, cls, pts: t.pts, angles: t.angles,
         x: cx + rnd(-jit, jit), y: cy + rnd(-jit, jit),
@@ -130,7 +139,7 @@ class GameRotate extends GameBase {
     shuffle(this.tris).forEach(t => { t.num = ++numbering[t.cls]; });
     this.tris.forEach(t => this.drawTri(t));
 
-    this.missions = easy ? this.makeEasyMissions() : this.makeNormalMissions();
+    this.missions = M.numbered ? this.makeNormalMissions() : this.makeEasyMissions();
     this.mi = 0;
     this.renderMissions();
     this.renderGoal();
@@ -146,7 +155,7 @@ class GameRotate extends GameBase {
     return shuffle(pool).slice(0, n).map(cls => ({ cls, num: null, dir: pick([1, -1]), n: rndInt(1, 3), done: false }));
   }
   makeNormalMissions() {
-    const pool = shuffle(this.tris.slice()).slice(0, this.p.normalGoal);
+    const pool = shuffle(this.tris.slice()).slice(0, this.M.goal);
     const list = pool.map(t => ({ cls: t.cls, num: t.num, dir: pick([1, -1]), n: rndInt(1, this.p.maxTurn), done: false }));
     // 미션 판은 종류별로 묶고 번호순 (디자인 3쪽)
     const order = { right: 0, acute: 1, obtuse: 2 };
@@ -158,7 +167,7 @@ class GameRotate extends GameBase {
     svgEl('polygon', { points: ptsAttr(t.pts) }, g);
     t.g = g; this.place(t, true);
     g.addEventListener('pointerdown', (e) => { e.preventDefault(); this.select(t); });
-    if (this.mode === 'normal') {
+    if (this.M.numbered) {
       const lab = svgEl('text', { x: t.x, y: t.y + 9, class: 'rt-num' }, this.gLabels);
       lab.textContent = t.num; t.lab = lab;
     }
@@ -173,7 +182,7 @@ class GameRotate extends GameBase {
   /* ── 조작 ──────────────────────────────────── */
   pendingFor(t) {
     if (t.locked) return null;
-    if (this.mode === 'easy') {
+    if (!this.M.numbered) {
       const m = this.missions[this.mi];
       return m && !m.done && m.cls === t.cls ? m : null;
     }
@@ -184,7 +193,8 @@ class GameRotate extends GameBase {
     if (t.locked) { SFX.tick(); return; }
     if (!this.pendingFor(t)) {
       this.miss++; $('#rt-miss').textContent = this.miss;
-      SFX.bad(); Toast.show('다른 삼각형', 'bad');
+      SFX.bad(); Toast.show('틀렸습니다', 'bad');
+      if (this.miss >= this.p.missLimit) this.reset();
       t.g.classList.remove('shake'); void t.g.getBoundingClientRect(); t.g.classList.add('shake');
       return;
     }
@@ -206,7 +216,7 @@ class GameRotate extends GameBase {
       t.g.classList.remove('sel'); t.g.classList.add('done', t.cls);
       this.selected = null;
       this.after(260, () => { SFX.good(); Toast.show('맞았어!', 'good'); });
-      if (this.mode === 'easy') this.mi++;
+      if (!this.M.numbered) this.mi++;
       this.renderMissions(); this.renderGoal();
       if (this.missions.every(x => x.done)) this.after(900, () => this.finish());
     } else {
@@ -218,7 +228,7 @@ class GameRotate extends GameBase {
   dirText(m) { return `${m.dir > 0 ? '오른쪽' : '왼쪽'}으로 ${m.n}번`; }
   renderMissions() {
     const box = $('#rt-mlist');
-    if (this.mode === 'easy') {
+    if (!this.M.numbered) {
       const m = this.missions[this.mi] || this.missions[this.missions.length - 1];
       box.innerHTML = `
         <div class="rt-easy">
@@ -262,26 +272,36 @@ class GameRotate extends GameBase {
 
   finish() {
     this.over = true;
-    const sec = this.elapsed();
+    const sec = this.elapsed(), M = this.M;
     this.lastResult = { mode: this.mode, sec, miss: this.miss };
-    if (this.mode === 'easy') {
-      SFX.win();
+    SFX.win();
+    if (M.next) {
+      const N = this.MODES[M.next];
       Overlay.show({
-        kicker: 'Easy clear', title: '쉬움 모드 클리어',
+        kicker: 'Mode clear', title: `${M.name} 클리어`,
         body: statsHTML([[mmss(sec), '걸린 시간'], [this.miss, '실수']]),
-        actions: [{ label: '보통 모드', key: 'Enter', primary: true, onClick: () => this.start('normal') }]
+        actions: [{ label: N.name, key: 'Enter', primary: true, onClick: () => this.start(M.next) }]
       });
     } else {
-      SFX.win();
       Overlay.show({
         kicker: 'Mission clear', title: '클리어!',
         body: statsHTML([[`${this.done}/${this.missions.length}`, '목표 달성'], [mmss(sec), '걸린 시간'], [this.miss, '실수']]),
         actions: [
-          { label: '다시', key: 'Enter', primary: true, onClick: () => this.start('normal') },
+          { label: '다시', key: 'Enter', primary: true, onClick: () => this.start(this.mode) },
           { label: '쉬움 모드', onClick: () => this.start('easy') }
         ]
       });
     }
+  }
+  /** 실수가 missLimit 번이 되면 그 모드를 처음부터 (기획자 2차 페이퍼) */
+  reset() {
+    this.over = true; SFX.lose();
+    this.lastResult = { mode: this.mode, reset: true, miss: this.miss };
+    this.after(500, () => Overlay.show({
+      kicker: 'Reset', title: '틀려서 처음으로 초기화됩니다',
+      body: `<p class="ov-note">${this.miss}번 틀렸어요.</p>`,
+      actions: [{ label: '처음부터', key: 'Enter', primary: true, onClick: () => this.start(this.mode) }]
+    }));
   }
 }
 gameClasses[1] = GameRotate;

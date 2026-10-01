@@ -71,7 +71,7 @@ const check = (ok, msg) => { console.log((ok ? '  ok  ' : '  FAIL ') + msg); if 
     await p.mouse.click(...toPx(...pts[2]));
     await wait(400);
     const last = await p.evaluate(() => current.game.pieces.at(-1));
-    check(last && last.kind === order && last.score > 0, `마우스 가위질 → ${last && last.kind} ${last && last.score}점`);
+    check(last && last.ok && last.score > 0, `마우스 가위질 (${order}) → ${last && last.score}점`);
     if (W === 1366) await p.screenshot({ path: `${OUT}/c_g2_cut.png` });
     await wait(1400);
 
