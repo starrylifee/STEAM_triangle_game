@@ -171,3 +171,49 @@ button, a, .pk, .rt-tri, .fs-fish { touch-action: manipulation; -webkit-tap-high
   .tg-help { display: none; }
   .tg-beep { font-size: 17px; padding: 10px 16px; }
 }
+
+/* ── 게임 4·5 폰용 배치 (.phone 은 휴대폰에서만 붙는다) ── */
+.sh.phone { grid-template-columns: 1fr 86px; gap: 6px; padding: 6px; }
+.sh.phone .sh-side { gap: 6px; }
+.sh.phone .sh-stat { padding: 6px 8px; }
+.sh.phone .sh-stat:nth-child(2) { display: none; }
+.sh.phone .sh-stat em { font-size: 10.5px; }
+.sh.phone .sh-stat b { font-size: 20px; }
+.sh.phone .sh-stat span { display: none; }
+.sh.phone .sh-stat.big b { font-size: 32px; }
+.sh.phone .sh-dots { gap: 3px; padding: 0; }
+.sh.phone .sh-dots i { height: 6px; }
+.sh.phone .sh-help { display: none; }
+.sh.phone .sh-vlabel { font-size: 21px; }
+.sh.phone .sh-order { font-size: 32px; }
+.sh.phone .sh-traylabel { font-size: 22px; }
+
+.tg.phone {
+  grid-template-columns: 1fr 172px; grid-template-rows: auto 1fr; gap: 6px; padding: 6px;
+  grid-template-areas: "field left" "field right";
+}
+.tg.phone .tg-field { grid-area: field; }
+.tg.phone .tg-left { grid-area: left; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+.tg.phone .tg-right { grid-area: right; gap: 5px; }
+.tg.phone .tg-left > div { padding: 4px 6px; border-radius: 10px; }
+.tg.phone .tg-lives { display: flex; align-items: center; }
+.tg.phone .tg-lives em, .tg.phone .tg-level em, .tg.phone .tg-round em { display: none; }
+.tg.phone #tg-hearts svg { width: 16px; height: 16px; }
+.tg.phone .tg-round { display: flex; align-items: baseline; }
+.tg.phone .tg-round b { font-size: 16px; margin: 0; } .tg.phone .tg-round span { font-size: 11px; }
+.tg.phone .tg-level { flex-basis: 100%; }
+.tg.phone #tg-faces { flex-direction: row; gap: 2px; }
+.tg.phone .tg-face { flex: 1; height: 26px; justify-content: center; padding: 0; }
+.tg.phone .tg-face span { display: none; }
+.tg.phone .tg-face svg { width: 18px; height: 18px; }
+.tg.phone .tg-top { gap: 5px; }
+.tg.phone .tg-top > div, .tg.phone .tg-mission, .tg.phone .tg-fill { padding: 4px 8px; border-radius: 10px; }
+.tg.phone .tg-timer b { font-size: 20px; } .tg.phone .tg-timer em { font-size: 10px; }
+.tg.phone .tg-points b { font-size: 16px; } .tg.phone .tg-points em { font-size: 10px; }
+.tg.phone .tg-shopbtn { font-size: 12px; border-radius: 10px; }
+.tg.phone .tg-shop { padding: 5px; gap: 4px; } .tg.phone .tg-shop button { height: 28px; font-size: 11px; padding: 0 8px; }
+.tg.phone .tg-mission { font-size: 13px; line-height: 1.3; }
+.tg.phone .tg-fillbar { height: 8px; }
+.tg.phone .tg-fill p { margin-top: 2px; font-size: 11px; } .tg.phone .tg-fill p b { font-size: 16px; }
+.tg.phone .tg-done { height: 34px; font-size: 13px; border-radius: 10px; }
+.tg.phone .tg-help { display: none; }

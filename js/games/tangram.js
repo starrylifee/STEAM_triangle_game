@@ -24,9 +24,19 @@ class GameTangram extends GameBase {
       { key: 'decoyEasy',  label: '섞인 다른 삼각형 (쉬움·보통·어려움)', orig: [2, 4, 6], unit: '개', src: 'mine', note: '난이도 차이가 적혀 있지 않아서' }
     ];
     this.resetParams();
-    this.W = 1000; this.H = 760;
-    this.F = { x: 230, y: 34, w: 540, h: 360 };            // 네모 틀 (3:2)
-    this.tray = { x: 20, y: 440, w: 960, h: 300 };
+    this.phone = isPhone();
+    if (this.phone) {
+      // 폰 가로 : 틀은 왼쪽, 쟁반은 오른쪽에 나란히 (위아래로 쌓으면 틀이 너무 작아진다)
+      this.W = 1000; this.H = 420;
+      this.F = { x: 16, y: 30, w: 540, h: 360 };
+      this.tray = { x: 590, y: 18, w: 400, h: 386 };
+      this.trayRows = 4;
+    } else {
+      this.W = 1000; this.H = 760;
+      this.F = { x: 230, y: 34, w: 540, h: 360 };            // 네모 틀 (3:2)
+      this.tray = { x: 20, y: 440, w: 960, h: 300 };
+      this.trayRows = 2;
+    }
     this.level = 0;                                          // 0 쉬움 · 1 보통 · 2 어려움
     this.SAMPLE = 6;                                         // 채운 % 를 잴 때 점 간격
   }
@@ -35,7 +45,7 @@ class GameTangram extends GameBase {
     this.stage = stage;
     const F = this.F, T = this.tray;
     stage.innerHTML = `
-      <div class="tg">
+      <div class="tg${this.phone ? ' phone' : ''}">
         <aside class="tg-left">
           <div class="tg-lives"><div id="tg-hearts"></div><em>목숨</em></div>
           <div class="tg-level"><em>난이도</em><div id="tg-faces"></div></div>
@@ -152,7 +162,7 @@ class GameTangram extends GameBase {
       specs.push({ pts: t.pts, cls: t.cls, rot: rndInt(0, 3) * 90 });
     }
     // 쟁반 칸에 들어가게 조각 크기를 줄여 보여 준다 (끌어 올리면 실제 크기)
-    const cols = Math.ceil(specs.length / 2), cw = this.tray.w / cols, ch = this.tray.h / 2;
+    const cols = Math.ceil(specs.length / this.trayRows), cw = this.tray.w / cols, ch = this.tray.h / this.trayRows;
     const big = Math.max(...specs.map(sp => 2 * Math.max(...sp.pts.map(q => Math.hypot(q[0], q[1])))));
     this.kit.o.trayScale = Math.min(0.42, (Math.min(cw, ch) - 12) / big);
     const list = shuffle(specs).map(sp => this.kit.add(Object.assign(sp, { home: { x: 0, y: 0 } })));

@@ -92,6 +92,8 @@ const TRI = {
   obtuse: { name: '둔각', full: '둔각삼각형', color: 'var(--obtuse)', hex: '#FFB81C' }
 };
 const TRI_KEYS = ['acute', 'right', 'obtuse'];
+/** 휴대폰 화면인가 — 게임 4·5는 이때 판·쟁반을 폰용으로 배치한다 */
+const isPhone = () => !!(window.matchMedia && matchMedia('(max-height: 500px), (max-width: 760px)').matches);
 
 /** 세 각을 정한다. opt.acuteMax: 예각삼각형의 가장 큰 각 상한, opt.obtuseMin: 둔각의 하한 */
 function makeAngles(cls, opt = {}) {
