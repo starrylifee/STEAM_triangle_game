@@ -185,20 +185,7 @@ kbd {
 .gnum { font-family: var(--fm); font-size: 14px; font-weight: 800; color: var(--mute); }
 .gtitle h2 { font-size: 22px; font-weight: 850; letter-spacing: -.03em; line-height: 1.15; }
 .gtitle p { font-size: 13px; color: var(--mute); }
-.gai {
-  flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;
-  padding: 0 16px; height: 52px; border-left: 1px solid var(--line);
-}
-.gai-tag {
-  flex: none; font-family: var(--fm); font-size: 12px; font-weight: 800;
-  padding: 3px 7px; border-radius: 6px; background: var(--glow); color: var(--bg);
-}
-.gai p {
-  font-size: 15px; line-height: 1.4; color: #D5D0C6;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.gai b { color: var(--paper); font-weight: 750; }
-.gtools { flex: none; display: flex; gap: 8px; }
+.gtools { flex: none; display: flex; gap: 8px; margin-left: auto; }
 
 .stage { flex: 1; min-height: 0; position: relative; overflow: hidden; }
 
@@ -277,6 +264,9 @@ kbd {
 .letter .mine { margin: 18px 0; padding: 14px 18px; border-left: 3px solid #1d1f24; background: rgba(0,0,0,.04); font-size: 17px; line-height: 1.7; }
 .letter .mine li { margin: 2px 0; }
 .letter ul { margin: 0; padding-left: 20px; }
+.letter .hint { margin: 18px 0; padding: 14px 18px; border-left: 3px solid #E0532F; background: rgba(224,83,47,.06); font-size: 17px; line-height: 1.7; }
+.letter .hint .h { margin-top: 8px; }
+.letter .hint .h::before { content: "· "; font-weight: 800; }
 
 /* ── 토스트 ──────────────────────────────────── */
 .toast {
@@ -311,37 +301,6 @@ kbd {
   .gbar { height: 64px; }
 }
 @media (max-width: 1180px) {
-  .gai p { font-size: 14px; }
   .gtitle h2 { font-size: 19px; }
   .tbtn { padding: 0 12px; font-size: 14px; }
 }
-
-/* ── AI 평가서 (모달) ───────────────────────── */
-.rv { max-width: 980px; margin: 0 auto; }
-.rv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--line2); }
-.rv-kicker { font-family: var(--fm); font-size: 13px; font-weight: 800; color: var(--mute); }
-.rv-head h4 { margin: 4px 0 0; font-size: 32px; font-weight: 900; letter-spacing: -.03em; }
-.rv-count { display: flex; gap: 8px; }
-.rv-count span { font-family: var(--fm); font-weight: 800; font-size: 15px; padding: 5px 12px; border-radius: 999px; background: var(--bg3); }
-.good { color: var(--glow); } .warn { color: var(--obtuse); } .bad { color: var(--acute); }
-.rv-sum { margin-top: 16px; font-size: 18px; line-height: 1.7; color: #DAD5CB; }
-.rv-h { margin: 30px 0 12px; font-size: 15px; font-weight: 800; letter-spacing: .02em; color: var(--mute); }
-.rv-h small { font-weight: 600; margin-left: 8px; color: var(--dim); }
-.rv-marks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.rv-mark { display: flex; gap: 14px; padding: 14px 16px; border-radius: 14px; background: var(--bg3); }
-.rv-mark .sym { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; font-weight: 900; background: var(--bg); }
-.rv-mark b { font-size: 16px; }
-.rv-mark p { margin-top: 4px; font-size: 15px; line-height: 1.6; color: #C9C4BA; }
-.rv-bug { margin-top: 12px; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--line2); }
-.rv-lv { font-family: var(--fm); font-size: 12px; font-weight: 800; color: var(--acute); }
-.rv-bug:nth-of-type(n+2) .rv-lv { color: var(--obtuse); }
-.rv-bug h6 { margin: 4px 0 10px; font-size: 20px; font-weight: 850; letter-spacing: -.02em; }
-.rv-bug dl { margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 8px 16px; font-size: 15.5px; line-height: 1.65; }
-.rv-bug dt { color: var(--mute); font-weight: 700; }
-.rv-bug dd { margin: 0; color: #DAD5CB; }
-.rv-bug ol { margin: 0; padding-left: 20px; }
-.rv-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-.rv-table th, .rv-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.rv-table th { font-size: 13px; color: var(--mute); font-weight: 700; }
-.rv-table td.v { font-weight: 800; white-space: nowrap; }
-.rv-table td:last-child { color: #C9C4BA; }

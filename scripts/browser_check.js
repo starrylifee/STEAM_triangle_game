@@ -47,7 +47,7 @@ const check = (ok, msg) => { console.log((ok ? '  ok  ' : '  FAIL ') + msg); if 
     if (W === 1366) await p.screenshot({ path: `${OUT}/c_g1_easy.png` });
 
     // 모달 3종
-    for (const id of ['plan', 'review', 'letter']) {
+    for (const id of ['plan', 'letter']) {
       await p.click('#btn-' + id); await wait(400);
       check(await p.evaluate(() => !document.querySelector('#modal').hidden), `모달 ${id} 열림`);
       if (W === 1366) await p.screenshot({ path: `${OUT}/c_modal_${id}.png` });
@@ -102,7 +102,7 @@ const check = (ok, msg) => { console.log((ok ? '  ok  ' : '  FAIL ') + msg); if 
 
   // 인쇄 쪽수
   const fs = require('fs');
-  for (const [page, want] of [['worksheet.html', 4], ['review.html', 6]]) {
+  for (const [page, want] of [['worksheet.html', 4]]) {
     const q = await b.newPage();
     await q.goto(BASE + page, { waitUntil: 'networkidle0' });
     const pdf = await q.pdf({ format: 'A4', preferCSSPageSize: true, printBackground: true });

@@ -6,7 +6,7 @@
 <title>세모 게임실 — 학생이 기획한 삼각형 게임</title>
 <meta name="description" content="4학년 학생들이 종이에 기획한 삼각형 게임 3종. 예각·직각·둔각삼각형을 돌리고, 자르고, 낚는다.">
 <meta property="og:title" content="세모 게임실">
-<meta property="og:description" content="학생이 기획한 삼각형 게임 3종 · AI 기획 평가 · 디버깅 활동지">
+<meta property="og:description" content="학생이 기획한 삼각형 게임 3종 · AI 편지 · 디버깅 활동지">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="세모 게임실">
 <meta property="og:url" content="https://steam-triangle-game.vercel.app/">
@@ -38,7 +38,6 @@
         <span class="brand-name">세모 게임실</span>
       </div>
       <div class="topbar-tools">
-        <a class="tbtn" href="review.html" target="_blank" rel="noopener">AI 평가서</a>
         <a class="tbtn" href="worksheet.html" target="_blank" rel="noopener">활동지</a>
         <button class="tbtn icon" id="btn-sound" type="button" aria-pressed="true" aria-label="소리"></button>
       </div>
@@ -68,14 +67,9 @@
           <p id="g-who">—</p>
         </div>
       </div>
-      <div class="gai">
-        <span class="gai-tag">AI</span>
-        <p id="g-ai">—</p>
-      </div>
       <div class="gtools">
         <button class="tbtn" id="btn-plan" type="button">기획안</button>
-        <button class="tbtn" id="btn-review" type="button">AI 평가</button>
-        <button class="tbtn" id="btn-letter" type="button">편지</button>
+        <button class="tbtn dot" id="btn-letter" type="button">편지</button>
         <button class="tbtn icon" id="btn-sound2" type="button" aria-pressed="true" aria-label="소리"></button>
       </div>
     </header>
@@ -110,7 +104,6 @@
 
 <script src="js/core.js"></script>
 <script src="js/data.js"></script>
-<script src="js/review.js"></script>
 <script src="js/games/rotate.js"></script>
 <script src="js/games/pizza.js"></script>
 <script src="js/games/fish.js"></script>

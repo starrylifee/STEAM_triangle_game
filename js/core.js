@@ -256,7 +256,6 @@ function enterGame(n) {
   $('#g-num').textContent = pad2(n);
   $('#g-title').textContent = G.title;
   $('#g-who').textContent = `기획 · ${G.who}`;
-  $('#g-ai').innerHTML = G.ai;
   showView('game');
   const game = new gameClasses[n]();
   current = { n, game };

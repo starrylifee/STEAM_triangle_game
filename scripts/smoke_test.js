@@ -4,9 +4,9 @@ const fs = require('fs'), path = require('path');
 const { JSDOM } = require('jsdom');
 const ROOT = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');
-const files = ['core', 'data', 'review', 'games/rotate', 'games/pizza', 'games/fish', 'boot'];
+const files = ['core', 'data', 'games/rotate', 'games/pizza', 'games/fish', 'boot'];
 const code = files.map(f => fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8')).join('\n;\n')
-  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, REVIEWS, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify };';
+  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify };';
 
 const dom = new JSDOM(html, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'http://localhost/' });
 const w = dom.window;

@@ -35,14 +35,15 @@ h1, h2, h3, p { margin: 0; }
 .rule { margin-top: 6px; padding: 8px 12px; border: 1px solid #d3d8de; border-radius: 8px; background: #f6f7f9; font-size: 9pt; line-height: 1.6; }
 .rule .rt, .ai .at { display: block; font-size: 7.5pt; font-weight: 800; letter-spacing: .08em; color: #7a808a; margin-bottom: 2px; }
 .rule ul { margin: 0; padding-left: 16px; }
-.ai { margin-top: 7px; padding: 8px 12px; border: 1.5px solid #15171b; border-radius: 8px; font-size: 9.6pt; line-height: 1.6; }
+.ai { margin-top: 7px; padding: 8px 12px; border: 1.5px solid #15171b; border-radius: 8px; font-size: 9.3pt; line-height: 1.55; }
+.ai ul { margin: 0; padding-left: 16px; }
 
 .q { margin-top: 7px; }
 .q h3 { font-size: 10.3pt; font-weight: 750; margin-bottom: 5px; }
 .q h3 .n { display: inline-block; width: 17px; height: 17px; border-radius: 50%; background: #15171b; color: #fff; font-size: 8.5pt; text-align: center; line-height: 17px; margin-right: 6px; vertical-align: 1px; }
 .q .note { margin: -2px 0 5px; font-size: 8.5pt; color: #7a808a; }
 .lines { border: 1px solid #d3d8de; border-radius: 8px; }
-.lines div { height: 7mm; border-bottom: 1px dashed #dfe3e8; }
+.lines div { height: 6.3mm; border-bottom: 1px dashed #dfe3e8; }
 .lines div:last-child { border-bottom: 0; }
 .result { display: flex; gap: 8px; font-size: 9.5pt; }
 .result .cell { flex: 1; border: 1px solid #ccd2d9; border-radius: 8px; padding: 6px 9px; }
@@ -56,8 +57,8 @@ table { width: 100%; border-collapse: collapse; font-size: 9.2pt; }
 th, td { border: 1px solid #ccd2d9; padding: 4px 7px; text-align: left; vertical-align: middle; }
 th { background: #eef1f4; font-weight: 700; font-size: 8.3pt; color: #3c434c; }
 td.now { font-size: 8.8pt; color: #3c434c; white-space: nowrap; }
-td.blank { height: 7mm; }
-.foot { margin-top: 10px; padding-top: 6px; border-top: 1px solid #d3d8de; display: flex; justify-content: space-between; font-size: 8pt; color: #8a909a; }
+td.blank { height: 6.4mm; }
+.foot { margin-top: 6px; padding-top: 4px; border-top: 1px solid #d3d8de; display: flex; justify-content: space-between; font-size: 8pt; color: #8a909a; }
 
 /* 1쪽 안내 */
 .intro h2 { margin: 14px 0 6px; font-size: 12pt; font-weight: 850; }
@@ -82,7 +83,6 @@ td.blank { height: 7mm; }
   <span><b>게임 디버깅 활동지</b> · 표지 1 + 게임 3</span>
   <span>
     <a href="index.html">게임으로</a>
-    <a href="review.html">AI 평가서</a>
     <button class="p" type="button" onclick="window.print()">인쇄 / PDF</button>
   </span>
 </div>
@@ -99,8 +99,8 @@ td.blank { height: 7mm; }
   <h2>하는 방법</h2>
   <ol class="steps">
     <li>게임을 기획서 그대로 한 번 해 보고 결과를 ①에 적습니다.</li>
-    <li>화면 위쪽 <b>AI 한줄평</b>과 <b>AI 평가</b> 버튼의 평가서를 읽습니다.</li>
-    <li>내가 찾은 문제를 ②에 적습니다. AI와 생각이 달라도 괜찮습니다.</li>
+    <li>게임 화면의 <b>편지</b> 버튼을 눌러 AI가 기획한 친구에게 보낸 편지를 읽습니다.</li>
+    <li>내가 찾은 문제를 ②에 적습니다. 편지와 생각이 달라도 괜찮습니다.</li>
     <li>게임을 기획한 친구는 검은 칸 ③④에 숫자를 정해서 적습니다. 다음 판은 이 숫자로 만듭니다.</li>
     <li>숫자 말고 새 규칙이 떠오르면 ⑤에 적습니다.</li>
   </ol>
@@ -175,10 +175,10 @@ document.getElementById('gamesheets').innerHTML = Object.entries(GAMES).map(([n,
     <div class="q"><h3><span class="n">1</span>기획서 그대로 해 본 결과</h3>
       <div class="result">${s.result.map(r => `<div class="cell"><b>${r}</b><div class="fill"></div></div>`).join('')}</div>
     </div>
-    <div class="ai"><span class="at">AI 한줄평</span>${g.ai}</div>
+    <div class="ai"><span class="at">편지에서 짚은 곳</span><ul>${LETTERS[n][0].hints.map(h => `<li>${h}</li>`).join('')}</ul></div>
 
     <div class="q"><h3><span class="n">2</span>내가 찾은 문제는 무엇인가요?</h3>
-      <p class="note">AI 한줄평과 달라도 됩니다. 해 보면서 이상했던 곳, 너무 쉽거나 어려웠던 곳을 적으세요.</p>
+      <p class="note">편지와 달라도 됩니다. 해 보면서 이상했던 곳, 너무 쉽거나 어려웠던 곳을 적으세요.</p>
       <div class="lines"><div></div><div></div><div></div></div>
     </div>
 

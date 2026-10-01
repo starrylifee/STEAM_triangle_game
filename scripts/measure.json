@@ -1,11 +1,11 @@
 {
   "R1": {
-    "randMissPerTarget": 14.4,
-    "numMissPerTarget": 1.02,
-    "fourRate": 27
+    "randMissPerTarget": 14.6,
+    "numMissPerTarget": 0.98,
+    "fourRate": 26
   },
   "R2": {
-    "randAcute": 26,
+    "randAcute": 25,
     "randObtuse": 69,
     "randRight": 5
   },
@@ -22,6 +22,6 @@
       "acMax": 78,
       "obMin": 102
     },
-    "randWin": 0.3
+    "randWin": 0.5
   }
 }

@@ -70,11 +70,6 @@ function openPlan() {
       <figure><img src="source_images/${p}" alt="${g.title} 기획서 ${i + 1}쪽" loading="lazy"><figcaption>${cap[i]}</figcaption></figure>`).join('')}
     </div>`);
 }
-function openReview() {
-  const n = current.n;
-  Modal.open(`AI 평가 · ${GAMES[n].title}`, null, () => reviewHTML(n),
-    `<a class="tbtn" href="review.html#g${n}" target="_blank" rel="noopener">인쇄본</a>`);
-}
 function openLetter() {
   const n = current.n, list = LETTERS[n] || [];
   Modal.open('편지', list.map(l => l.v), (i) => {
@@ -83,6 +78,7 @@ function openLetter() {
       <p class="to">${l.to}</p>
       ${l.body.map(p => `<p>${p}</p>`).join('')}
       <div class="mine"><p><b>기획서에 없어서 내가 정한 것</b></p><ul>${l.mine.map(x => `<li>${x}</li>`).join('')}</ul></div>
+      <div class="hint"><p><b>조금 아쉬울 수 있는 곳</b></p>${l.hints.map(h => `<p class="h">${h}</p>`).join('')}</div>
       <p>${l.ask}</p>
       <p>${l.next}</p>
       <p class="from">${l.from}</p>
@@ -90,7 +86,6 @@ function openLetter() {
   });
 }
 $('#btn-plan').onclick = openPlan;
-$('#btn-review').onclick = openReview;
 $('#btn-letter').onclick = openLetter;
 $('#btn-back').onclick = () => { SFX.select(); backHome(); };
 
