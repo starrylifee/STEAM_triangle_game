@@ -18,19 +18,19 @@ const GAMES = {
     pages: ['g2_page_1.jpg', 'g2_page_2.jpg', 'g2_page_3.jpg', 'g2_page_4.jpg']
   },
   3: {
-    id: 'fish', title: '물고기 잡기!', who: '잼민이 아닌데요?', team: 'B',
+    id: 'fish', title: '물고기 잡기!', who: '잼민이 아닌데요?', team: 'C',
     line: '빛나는 지느러미의 각을 보고 말한 물고기만 낚는다',
     tags: ['acute', 'right', 'obtuse'],
     pages: ['g3_page_1.jpg', 'g3_page_2.jpg', 'g3_page_3.jpg', 'g3_page_4.jpg']
   },
   4: {
-    id: 'shape', title: '퍼즐을 맞춰라!', who: '안경 ⌐o-o', team: 'C',
+    id: 'shape', title: '퍼즐을 맞춰라!', who: '안경 ⌐o-o', team: 'D',
     line: '문장이 말한 삼각형으로만 집·산·우산 모양을 완성한다',
     tags: ['acute', 'right', 'obtuse', 'move'],
     pages: ['g4_page_1.jpg', 'g4_page_2.jpg', 'g4_page_3.jpg', 'g4_page_4.jpg']
   },
   5: {
-    id: 'chilgak', title: '칠각 게임', who: '사람들', team: 'D',
+    id: 'chilgak', title: '칠각 게임', who: '사람들', team: 'E',
     line: '네모 틀을 한 가지 삼각형으로만 칠교처럼 채운다',
     tags: ['acute', 'right', 'obtuse'],
     pages: ['g5_page_1.jpg', 'g5_page_2.jpg', 'g5_page_3.jpg', 'g5_page_4.jpg', 'g5_page_5.jpg'],
@@ -38,13 +38,13 @@ const GAMES = {
   }
 };
 
-/* 5모둠 중 제출한 모둠. 나머지는 빈 자리 */
+/* 5모둠 — 모둠마다 게임 하나. 안 낸 모둠이 있으면 { id: null } 로 빈 자리 */
 const TEAMS = [
   { id: 'A', names: ['아야어여우유어이'], games: [1] },
-  { id: 'B', names: ['키위 맛 우유', '잼민이 아닌데요?'], games: [2, 3] },
-  { id: 'C', names: ['안경 ⌐o-o'], games: [4] },
-  { id: 'D', names: ['사람들'], games: [5] },
-  { id: null }
+  { id: 'B', names: ['키위 맛 우유'], games: [2] },
+  { id: 'C', names: ['잼민이 아닌데요?'], games: [3] },
+  { id: 'D', names: ['안경 ⌐o-o'], games: [4] },
+  { id: 'E', names: ['사람들'], games: [5] }
 ];
 
 /* ── 홈 포스터 그림 ─────────────────────────────── */
