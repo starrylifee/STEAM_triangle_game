@@ -17,6 +17,7 @@ body {
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 h1, h2, h3, p { margin: 0; }
+@media (max-width: 760px) { .bar { flex-wrap: wrap; padding: 8px 10px; } .bar a, .bar button { padding: 6px 10px; margin-left: 2px; } }
 .bar { position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; background: #0C0E12; color: #F2EDE3; font-size: 13px; }
 .bar a, .bar button { font: inherit; font-weight: 650; padding: 8px 15px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: #F2EDE3; cursor: pointer; text-decoration: none; margin-left: 6px; }
 .bar button.p { background: #F2EDE3; color: #0C0E12; border-color: transparent; }
@@ -220,6 +221,18 @@ document.getElementById('gamesheets').innerHTML = Object.entries(GAMES).map(([n,
     <div class="foot"><span>세모 게임실 · ${g.title}</span><span>${i + 2}</span></div>
   </section>`;
 }).join('');
+
+/* 휴대폰에서는 A4 종이를 화면 폭에 맞춰 줄여 보여 준다 (인쇄할 때는 원래 크기) */
+function fitSheets(on) {
+  // 넓은 종이 때문에 화면 폭이 넓게 잡힐 수 있어 실제 화면 폭(screen.width)과 견준다
+  const vw = Math.min(innerWidth, screen.width || innerWidth);
+  const k = on && vw < 820 ? ((vw - 16) / 794).toFixed(3) : '';
+  document.querySelectorAll('.sheet').forEach(el => { el.style.zoom = k; });
+}
+fitSheets(true);
+addEventListener('resize', () => fitSheets(true));
+addEventListener('beforeprint', () => fitSheets(false));
+addEventListener('afterprint', () => fitSheets(true));
 </script>
 </body>
 </html>

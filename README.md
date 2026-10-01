@@ -68,7 +68,11 @@ extracted_games.md 기획서 분석서
 scripts/          smoke_test.js (jsdom 자동 플레이) · browser_check.js (Chrome 헤드리스 점검)
 ```
 
-바닐라 HTML/CSS/JS. `python -m http.server` 로 열면 된다. 글꼴(Pretendard·JetBrains Mono)만 CDN이고 없어도 시스템 글꼴로 뜬다.
+바닐라 HTML/CSS/JS. `python -m http.server` 로 열면 된다.
+
+휴대폰 : `css/mobile.css` · `js/mobile.js` (최초 버전 `v1/` 도 같이 씀). 크롬북·전자칠판 화면에는 적용되지 않는다.
+- 세로 폰 : 홈은 세로 카드 목록, 기획안·편지는 화면 가득, 활동지는 A4를 폭에 맞춰 축소. 게임은 「가로로 돌려 주세요」 안내와 함께 멈춤
+- 가로 폰 : 게임 화면의 글씨·버튼·패널을 작은 높이에 맞게 압축, 가로로 돌리면 이어서 진행 글꼴(Pretendard·JetBrains Mono)만 CDN이고 없어도 시스템 글꼴로 뜬다.
 
 ## 원칙
 

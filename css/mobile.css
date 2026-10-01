@@ -1,0 +1,173 @@
+/* ═══════════════════════════════════════════════════
+   mobile.css — 휴대폰 전용 (크롬북·전자칠판 화면은 건드리지 않는다)
+   · 세로 폰 : 홈·기획안·편지는 세로 배치, 게임은 「가로로 돌려 주세요」
+   · 가로 폰 : 게임 화면을 작은 높이에 맞게 압축
+   ═══════════════════════════════════════════════════ */
+
+button, a, .pk, .rt-tri, .fs-fish { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+/* 세로로 들었을 때 보이는 안내 — 기본은 숨김 */
+.rotate-hint { display: none; }
+
+/* ── 세로 폰 ─────────────────────────────────── */
+@media (max-width: 760px) and (orientation: portrait) {
+  body { overflow: auto; }
+  #app { height: auto; min-height: 100dvh; }
+
+  /* 홈 : 세로로 내려 보는 카드 목록 */
+  .topbar { height: 56px; padding: 0 16px; position: sticky; top: 0; z-index: 5; background: var(--bg); }
+  .home { display: block; padding: 18px 16px 24px; }
+  .home-head { margin-bottom: 14px; }
+  .home-head h1 { font-size: 30px; }
+  .home-keys { display: none; }
+  .posters, .posters.n5 { display: flex; flex-direction: column; gap: 12px; }
+  .poster { grid-template-rows: none; grid-template-columns: 38% 1fr; min-height: 168px; }
+  .poster-art { min-height: 168px; }
+  .poster-key { display: none; }
+  .poster-info, .posters.n5 .poster-info { border-top: 0; border-left: 1px solid var(--line); padding: 14px 14px 14px; }
+  .poster-info h2, .posters.n5 .poster-info h2 { font-size: 21px; }
+  .poster-line, .posters.n5 .poster-line { font-size: 13.5px; }
+  .poster-meta { margin-top: 10px; }
+  .teams { flex-wrap: wrap; margin-top: 16px; }
+  .teams-label { width: 100%; }
+  .team { flex: 1 1 45%; height: 40px; }
+
+  /* 게임 : 위쪽 막대만 남기고 가로 안내 */
+  #view-game { height: 100dvh; }
+  .gbar { height: 56px; gap: 8px; padding: 0 10px 0 8px; }
+  .gback { height: 40px; padding: 0 8px 0 4px; }
+  .gback kbd, .gnum, .gtitle p, #btn-sound2, .gtitle .v-tag { display: none; }
+  .gtitle h2 { font-size: 16px; max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gtools { gap: 4px; }
+  .gtools .tbtn { height: 34px; padding: 0 10px; font-size: 12.5px; }
+  .stage { display: none; }
+  .rotate-hint {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    padding: 24px; text-align: center; color: var(--mute); font-size: 16px;
+  }
+  .rotate-hint b { display: block; color: var(--paper); font-size: 22px; font-weight: 850; margin-bottom: 4px; }
+  .rotate-hint svg { width: 92px; height: 92px; fill: none; stroke: var(--paper); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: rot-hint 2.4s var(--ease) infinite; }
+  @keyframes rot-hint { 0%, 25% { transform: rotate(0); } 55%, 100% { transform: rotate(-90deg); } }
+  .overlay { display: none !important; }
+
+  /* 기획안 · 편지 : 화면 가득 */
+  .modal { padding: 0; }
+  .modal-card { height: 100dvh; border-radius: 0; }
+  .modal-head { padding: 10px 10px 10px 16px; gap: 8px; flex-wrap: wrap; }
+  .modal-head h3 { font-size: 17px; }
+  .modal-tabs { order: 3; flex-basis: 100%; }
+  .modal-body { padding: 14px 12px 28px; }
+  .plan-pages { grid-template-columns: 1fr; }
+  .letter { padding: 24px 20px 28px; font-size: 16.5px; line-height: 1.8; }
+  .letter .to { font-size: 18px; }
+  .letter .mine, .letter .hint { font-size: 15px; padding: 12px 14px; }
+
+  .toast { top: 70px; font-size: 15px; }
+}
+
+/* ── 가로 폰 (높이가 낮은 화면) ─────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .topbar { height: 46px; padding: 0 14px; }
+  .brand-mark { width: 24px; height: 24px; }
+  .home { padding: 10px 14px 10px; gap: 8px; }
+  .home-head h1 { font-size: 22px; }
+  .poster-num, .poster-key { top: 8px; }
+  .posters.n5 .poster-info { padding: 8px 10px 10px; }
+  .posters.n5 .poster-info h2 { font-size: 15px; }
+  .posters.n5 .poster-line { display: none; }
+  .poster-meta { margin-top: 6px; }
+  .poster-who { font-size: 11px; }
+  .tri-tag, .posters.n5 .tri-tag { height: 20px; padding: 0 6px; font-size: 10.5px; }
+  .teams { padding: 6px 8px; gap: 6px; }
+  .team { height: 30px; font-size: 12px; padding: 0 8px; }
+
+  .gbar { height: 48px; gap: 10px; padding: 0 10px 0 8px; }
+  .gback { height: 36px; }
+  .gback kbd, .gtitle p, .gnum { display: none; }
+  .gtitle h2 { font-size: 16px; }
+  .gtools .tbtn, .tbtn { height: 32px; padding: 0 10px; font-size: 12.5px; }
+  .tbtn.icon { width: 32px; }
+  .overlay { top: 48px; }
+  .ov-card { padding: 18px 22px 16px; }
+  .ov-card h3 { font-size: 30px; }
+  .ov-body { margin-top: 8px; font-size: 14px; }
+  .ov-stat b { font-size: 20px; }
+  .ov-actions { margin-top: 12px; }
+  .btn { height: 42px; font-size: 16px; padding: 0 18px; }
+  .modal { padding: 8px; }
+  .modal-card { height: calc(100dvh - 16px); }
+  .modal-head { padding: 6px 8px 6px 14px; }
+  .modal-body { padding: 12px 16px 20px; }
+  .toast { top: 56px; font-size: 14px; }
+  kbd { display: none; }
+
+  /* 1. 미션 삼각형 돌리기 */
+  .rt { gap: 6px; padding: 6px; grid-template-columns: 1fr 190px; }
+  .rt-mission { padding: 8px 12px; }
+  .rt-mh { font-size: 17px; margin-bottom: 6px; }
+  .rt-group { padding: 5px 0; }
+  .rt-gname { font-size: 14px; margin-bottom: 2px; }
+  .rt-item { font-size: 13px; padding: 1px 0; }
+  .rt-item b { font-size: 12px; min-width: 28px; }
+  .rt-kind { font-size: 19px; } .rt-order { font-size: 16px; }
+  .rt-foot { display: none; }
+  .rt-dock { gap: 6px; }
+  .rt-goal { width: 128px; padding: 4px 8px; gap: 4px; }
+  .rt-goal-top b { font-size: 20px; }
+  .rt-target { width: 54px; height: 54px; }
+  .rt-pad { gap: 4px; }
+  .rt-row { gap: 4px; }
+  .rt-btn { min-height: 34px; font-size: 11.5px; gap: 3px; border-radius: 9px; }
+  .rt-btn svg { display: none; }
+  .rt-plaque { top: 6px; padding: 3px 12px; font-size: 13px; }
+  .rt-hud { top: 6px; left: 6px; } .rt-chip { padding: 3px 8px; } .rt-chip b { font-size: 14px; }
+  .rt-modes { top: 6px; right: 6px; } .rt-modes button { height: 26px; padding: 0 8px; font-size: 12px; }
+
+  /* 2. 피자 자르기 */
+  .pz { grid-template-columns: 200px 1fr; gap: 6px; padding: 6px; }
+  .pz-side { gap: 6px; }
+  .pz-cust { padding: 8px 10px; display: grid; grid-template-columns: 44px 1fr; gap: 6px; align-items: start; }
+  .pz-face { width: 44px; height: 44px; }
+  .pz-bubble { margin-top: 0; padding: 7px 9px; font-size: 13.5px; border-radius: 10px; }
+  .pz-bubble::before { display: none; }
+  .pz-need { grid-column: 1 / -1; margin-top: 2px; } .pz-need span { font-size: 11px; padding: 2px 7px; }
+  .pz-last { padding: 6px 10px; } .pz-last b { font-size: 30px; } .pz-last p { font-size: 11.5px; }
+  .pz-log { grid-template-columns: repeat(4, 1fr); gap: 4px; } .pz-li { padding: 3px; } .pz-li svg { width: 22px; height: 22px; }
+  .pz-hud { top: 6px; right: 6px; gap: 5px; }
+  .pz-timer, .pz-count { padding: 4px 9px; border-radius: 10px; }
+  .pz-hud b { font-size: 22px; } .pz-hud em { font-size: 10px; } .pz-count span { font-size: 13px; }
+  .pz-level { font-size: 12px; padding: 0 8px; border-radius: 10px; }
+  .pz-redo { bottom: 6px; right: 6px; height: 34px; padding: 0 12px; font-size: 13px; }
+
+  /* 3. 물고기 잡기 */
+  .fs-hud { top: 6px; left: 6px; right: 6px; }
+  .fs-target { padding: 6px 12px; gap: 8px; border-radius: 12px; }
+  .fs-target b { font-size: 24px; } .fs-target span { font-size: 13px; }
+  .fs-right { gap: 4px; } .fs-map { font-size: 11px; padding: 3px 8px; }
+  .fs-casts { padding: 5px 8px; gap: 4px; } .fs-casts i { width: 14px; height: 14px; } .fs-casts b { font-size: 15px; }
+  .fs-lives { padding: 3px 6px; } .fs-lives svg { width: 17px; height: 17px; }
+  .fs-home { padding: 0 4%; } .fs-home h3 { font-size: 24px; margin-bottom: 10px; }
+  .fs-mapart { aspect-ratio: 16 / 6; } .fs-mapinfo { padding: 8px 12px; } .fs-mapinfo b { font-size: 18px; }
+
+  /* 4. 퍼즐을 맞춰라 */
+  .sh { grid-template-columns: 1fr 120px; gap: 6px; padding: 6px; }
+  .sh-side { gap: 6px; }
+  .sh-stat { padding: 6px 10px; } .sh-stat em { font-size: 11px; } .sh-stat b { font-size: 20px; } .sh-stat span { font-size: 11px; }
+  .sh-stat.big b { font-size: 34px; }
+  .sh-help { display: none; }
+
+  /* 5. 칠각 게임 */
+  .tg { grid-template-columns: 112px 1fr 176px; gap: 6px; padding: 6px; }
+  .tg-left, .tg-right { gap: 6px; }
+  .tg-left > div, .tg-top > div, .tg-mission, .tg-fill { padding: 6px 8px; }
+  #tg-hearts svg { width: 20px; height: 20px; }
+  .tg-face { height: 28px; font-size: 12px; gap: 5px; padding: 0 5px; } .tg-face svg { width: 18px; height: 18px; }
+  .tg-round b { font-size: 22px; }
+  .tg-timer b { font-size: 22px; } .tg-points b { font-size: 18px; }
+  .tg-shopbtn { font-size: 12px; } .tg-shop button { height: 30px; font-size: 12px; }
+  .tg-mission { font-size: 14px; }
+  .tg-fill p { margin-top: 4px; font-size: 12px; } .tg-fill p b { font-size: 18px; }
+  .tg-done { height: 38px; font-size: 14px; }
+  .tg-help { display: none; }
+  .tg-beep { font-size: 17px; padding: 10px 16px; }
+}
