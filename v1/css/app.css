@@ -308,4 +308,6 @@ kbd {
 
 /* 최초 버전 표시 */
 .v-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--obtuse); color: #0C0E12; font-size: 12px; font-weight: 900; margin-left: 4px; }
-.gtitle .v-tag { margin: 4px 0 0; height: 20px; font-size: 11px; }
+.gtitle > div { display: grid; grid-template-columns: auto auto; align-items: center; justify-content: start; column-gap: 8px; }
+.gtitle > div p { grid-column: 1 / -1; }
+.gtitle .v-tag { margin: 0; height: 20px; font-size: 11px; }
