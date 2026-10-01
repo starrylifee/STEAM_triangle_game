@@ -175,7 +175,6 @@ const Overlay = {
   keyHandler: null,
   /** opt: { kicker, title, body(html), actions: [{label, key, primary, onClick}] } */
   show(opt) {
-    // 기획안·편지 창이 열려 있으면 닫는다 (결과 창이 그 뒤에 가려지지 않게)
     if (!$('#modal').hidden) { $('#modal').hidden = true; resumeGame(); }
     $('#ov-kicker').textContent = opt.kicker || '';
     $('#ov-title').textContent = opt.title || '';
@@ -189,9 +188,7 @@ const Overlay = {
     });
     $('#overlay').hidden = false;
     this.keyHandler = (e) => {
-      const acts = opt.actions || [];
-      // 엔터는 항상 진행 : 엔터가 따로 없으면 기본(primary) 버튼
-      const hit = acts.find(a => a.key && e.key === a.key) || (e.key === 'Enter' ? acts.find(a => a.primary) : null);
+      const hit = (opt.actions || []).find(a => a.key && (e.key === a.key || (a.key === 'Enter' && e.key === 'Enter')));
       if (hit) { e.preventDefault(); e.stopPropagation(); this.hide(); hit.onClick && hit.onClick(); }
     };
     window.addEventListener('keydown', this.keyHandler, true);
@@ -260,9 +257,7 @@ function enterGame(n) {
   $('#g-num').textContent = pad2(n);
   $('#g-title').textContent = G.title;
   $('#g-who').textContent = `기획 · ${G.who}`;
-  // 디버깅 페이퍼를 반영한 게임은 최초 버전(v1/)도 해 볼 수 있다
-  $('#btn-v1').hidden = !G.v1;
-  $('#btn-v1').href = 'v1/#' + G.id;
+  $('#btn-latest').href = '../#' + G.id;
   showView('game');
   const game = new gameClasses[n]();
   current = { n, game };

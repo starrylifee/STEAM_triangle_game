@@ -1,0 +1,287 @@
+/* ═══════════════════════════════════════════════════
+   게임별 무대
+   ═══════════════════════════════════════════════════ */
+
+/* ══ 1. 미션 삼각형 돌리기 ═════════════════════ */
+.rt {
+  height: 100%; display: grid; gap: 12px; padding: 12px;
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: 1fr auto;
+  grid-template-areas: "field mission" "dock mission";
+}
+.rt-field { grid-area: field; position: relative; min-height: 0; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); overflow: hidden; }
+.rt-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rt-tri { cursor: pointer; transition: transform .45s var(--ease); }
+.rt-tri polygon {
+  fill: #252B37; stroke: rgba(242,237,227,.78); stroke-width: 2.5; stroke-linejoin: round;
+  transition: fill .3s, stroke .3s;
+}
+.rt-tri:hover polygon { fill: #2E3544; stroke: var(--paper); }
+.rt-tri.sel polygon { fill: #2E3544; stroke: var(--glow); stroke-width: 4; filter: drop-shadow(0 0 10px rgba(98,240,211,.55)); }
+.rt-tri.done { cursor: default; }
+.rt-tri.done polygon { stroke: none; }
+.rt-tri.done.acute polygon  { fill: var(--acute); }
+.rt-tri.done.right polygon  { fill: var(--right); }
+.rt-tri.done.obtuse polygon { fill: var(--obtuse); }
+.rt-tri.shake polygon { animation: rtshake .38s ease; }
+@keyframes rtshake {
+  0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); }
+  60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
+}
+.rt-num { font-family: var(--fm); font-size: 26px; font-weight: 800; fill: var(--paper); text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: #13161C; stroke-width: 5px; }
+
+.rt-plaque {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  padding: 6px 22px; border-radius: 10px; border: 1.5px solid var(--line3);
+  background: var(--bg); font-size: 18px; font-weight: 800; letter-spacing: .02em; pointer-events: none;
+}
+.rt-hud { position: absolute; top: 12px; left: 12px; display: flex; gap: 8px; pointer-events: none; }
+.rt-chip { display: flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 10px; background: rgba(12,14,18,.8); border: 1px solid var(--line); }
+.rt-chip em { font-style: normal; font-size: 12px; color: var(--mute); font-weight: 700; }
+.rt-chip b { font-family: var(--fm); font-size: 18px; }
+.rt-modes { position: absolute; top: 12px; right: 12px; display: flex; padding: 3px; border-radius: 12px; background: rgba(12,14,18,.85); border: 1px solid var(--line); }
+.rt-modes button { height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; color: var(--mute); font-size: 14px; font-weight: 750; cursor: pointer; }
+.rt-modes button.on { background: var(--paper); color: var(--bg); }
+
+.rt-mission { grid-area: mission; min-height: 0; overflow: auto; padding: 18px 20px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.rt-mh { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 26px; font-weight: 900; letter-spacing: .2em; margin-bottom: 14px; }
+.rt-mh::before { content: "{"; color: var(--dim); font-weight: 400; }
+.rt-mh::after  { content: "}"; color: var(--dim); font-weight: 400; }
+.rt-group { padding: 12px 0; border-top: 1px solid var(--line); }
+.rt-gname { font-size: 19px; font-weight: 850; margin-bottom: 6px; }
+.rt-item { display: flex; gap: 10px; align-items: baseline; font-size: 18px; padding: 3px 0; color: #D5D0C6; }
+.rt-item b { font-family: var(--fm); font-size: 16px; min-width: 38px; color: var(--paper); }
+.rt-item.done { color: var(--dim); text-decoration: line-through; }
+.rt-item.done b { color: var(--dim); }
+.rt-foot { padding-top: 10px; border-top: 1px solid var(--line); font-size: 17px; color: var(--mute); text-align: right; }
+.rt-easy { padding-top: 12px; border-top: 1px solid var(--line); text-align: center; }
+.rt-kind { font-size: 28px; font-weight: 900; letter-spacing: -.02em; }
+.rt-order { margin-top: 10px; font-size: 24px; font-weight: 700; line-height: 1.4; color: #D5D0C6; }
+.rt-steps { margin-top: 22px; display: flex; justify-content: center; gap: 8px; }
+.rt-steps i { width: 28px; height: 6px; border-radius: 3px; background: var(--bg4); }
+.rt-steps i.now { background: var(--line3); }
+.rt-steps i.on { background: var(--glow); }
+
+.rt-dock { grid-area: dock; display: flex; gap: 12px; min-height: 0; }
+.rt-goal { flex: none; width: 250px; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.rt-goal-top { display: flex; flex-direction: column; gap: 2px; }
+.rt-goal-top em { font-style: normal; font-size: 13px; color: var(--mute); font-weight: 700; }
+.rt-goal-top b { font-family: var(--fm); font-size: 32px; font-weight: 800; line-height: 1; }
+.rt-target { width: 104px; height: 104px; margin-left: auto; }
+.rt-tgt-goal { fill: none; stroke: var(--glow); stroke-width: 3; stroke-dasharray: 7 6; }
+.rt-tgt-now { fill: rgba(242,237,227,.12); stroke: var(--paper); stroke-width: 2.5; }
+.rt-tgt-empty { font-family: var(--fm); font-size: 44px; font-weight: 800; fill: var(--dim); text-anchor: middle; }
+.rt-pad { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.rt-row { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rt-btn {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 50px; border-radius: 12px; border: 1px solid var(--line2); background: var(--bg2);
+  font-size: 17px; font-weight: 650; cursor: pointer; color: #D5D0C6;
+  transition: background .15s, transform .12s;
+}
+.rt-btn b { color: var(--paper); font-weight: 850; }
+.rt-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rt-btn:hover { background: var(--bg3); }
+.rt-btn:active { transform: scale(.97); background: var(--bg4); }
+.rt-btn kbd { position: absolute; top: 6px; right: 6px; min-width: 20px; height: 20px; font-size: 11px; }
+
+/* ══ 2. 피자 자르기 ═══════════════════════════ */
+.pz { height: 100%; display: grid; grid-template-columns: 300px 1fr; gap: 12px; padding: 12px; }
+.pz-side { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.pz-cust { padding: 18px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.pz-cust.in { animation: rise .45s var(--ease); }
+.pz-face { width: 92px; height: 92px; display: block; }
+.pz-bubble {
+  position: relative; margin-top: 14px; padding: 14px 16px; border-radius: 16px;
+  background: var(--paper); color: var(--bg); font-size: 21px; font-weight: 750; line-height: 1.35;
+}
+.pz-bubble::before { content: ""; position: absolute; top: -10px; left: 30px; border: 10px solid transparent; border-top: 0; border-bottom-color: var(--paper); }
+.pz-bubble b { font-weight: 900; padding: 0 2px; }
+.pz-bubble b.acute { color: #D63B1A; }
+.pz-bubble b.obtuse { color: #B07800; }
+.pz-last { padding: 14px 18px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.pz-last em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--mute); }
+.pz-last b { display: block; font-family: var(--fm); font-size: 56px; font-weight: 800; line-height: 1.05; }
+.pz-last b.perfect { color: var(--glow); }
+.pz-last b.zero { color: var(--bad); }
+.pz-last p { font-size: 14px; color: var(--mute); min-height: 21px; }
+.pz-last .k { font-weight: 800; }
+.pz-last .k.acute { color: var(--acute); } .pz-last .k.obtuse { color: var(--obtuse); } .pz-last .k.right { color: var(--right); }
+.pz-log { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: repeat(4, 1fr); align-content: start; gap: 8px; }
+.pz-li { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); animation: rise .3s var(--ease); }
+.pz-li svg { width: 34px; height: 34px; }
+.pz-li polygon { stroke: none; }
+.pz-li polygon.acute { fill: var(--acute); } .pz-li polygon.right { fill: var(--right); } .pz-li polygon.obtuse { fill: var(--obtuse); }
+.pz-li b { font-family: var(--fm); font-size: 14px; }
+.pz-li.no { opacity: .45; }
+
+.pz-field { position: relative; min-height: 0; border-radius: var(--r); background: radial-gradient(ellipse at 50% 40%, #1B1F28 0%, #111318 70%); border: 1px solid var(--line); overflow: hidden; }
+.pz-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.pz-cutline { stroke: #FFF6E6; stroke-width: 4; stroke-linecap: round; }
+.pz-guide { stroke: #FFF6E6; stroke-width: 3; stroke-dasharray: 10 9; stroke-linecap: round; opacity: .85; }
+.pz-guide.faint { opacity: .3; }
+.pz-vert { fill: var(--bg); stroke: #FFF6E6; stroke-width: 3; }
+.pz-hole { fill: #14171E; }
+.pz-piece-edge { fill: none; stroke: #FFF6E6; stroke-width: 3; stroke-linejoin: round; }
+#pz-piece { transition: transform .6s cubic-bezier(.5,0,.75,0), opacity .6s; }
+#pz-piece.fly { opacity: 0; }
+.pz-deg { font-family: var(--fm); font-size: 26px; font-weight: 800; fill: #FFF6E6; text-anchor: middle; paint-order: stroke; stroke: #14171E; stroke-width: 6px; }
+.pz-pop { font-family: var(--fm); font-size: 64px; font-weight: 800; fill: var(--glow); text-anchor: middle; paint-order: stroke; stroke: #0C0E12; stroke-width: 8px; animation: pzpop .9s var(--ease); }
+.pz-pop.zero { fill: var(--bad); }
+@keyframes pzpop { from { opacity: 0; transform: translateY(20px); } }
+.pz-scis { pointer-events: none; }
+.pz-hud { position: absolute; top: 14px; right: 14px; display: flex; gap: 10px; pointer-events: none; }
+.pz-timer, .pz-count { padding: 10px 16px; border-radius: 14px; background: rgba(12,14,18,.82); border: 1px solid var(--line); }
+.pz-hud em { display: block; font-style: normal; font-size: 12px; font-weight: 700; color: var(--mute); }
+.pz-hud b { font-family: var(--fm); font-size: 40px; font-weight: 800; line-height: 1.05; }
+.pz-count span { font-family: var(--fm); font-size: 20px; color: var(--mute); margin-left: 4px; }
+.pz-timer.hot b { color: var(--acute); }
+.pz-redo { position: absolute; bottom: 14px; right: 14px; }
+.pz-redo { height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line2); background: rgba(12,14,18,.82); font-size: 15px; font-weight: 700; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.pz-redo:hover { background: var(--bg3); }
+
+/* ══ 3. 물고기 잡기 ═══════════════════════════ */
+.fs { position: absolute; inset: 0; overflow: hidden; background: #07142A; }
+.fs-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fs-fish { cursor: pointer; }
+.fs-fin { fill: rgba(98,240,211,.22); stroke: var(--glow); stroke-width: 3.5; stroke-linejoin: round; filter: url(#fs-glow); }
+.map-deep .fs-fin { fill: rgba(98,240,211,.12); }
+.fs-fish.hooked .fs-fin { filter: none; stroke: #fff; stroke-width: 3; }
+.fs-fish.hooked.acute .fs-fin  { fill: var(--acute); }
+.fs-fish.hooked.right .fs-fin  { fill: var(--right); }
+.fs-fish.hooked.obtuse .fs-fin { fill: var(--obtuse); }
+.fs-angbox rect { fill: rgba(12,14,18,.9); stroke: rgba(242,237,227,.25); }
+.fs-angbox text { font-family: var(--fm); font-size: 24px; font-weight: 800; fill: var(--paper); text-anchor: middle; }
+#fs-line { pointer-events: none; }
+#fs-fx { pointer-events: none; }
+.fs-flow line { animation: flow 6s linear infinite; }
+@keyframes flow { to { transform: translateX(-120px); } }
+
+.fs-hud { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+.fs-target {
+  display: flex; align-items: baseline; gap: 12px; padding: 12px 22px; border-radius: 16px;
+  background: rgba(12,14,18,.85); border: 1px solid var(--line2); backdrop-filter: blur(6px);
+}
+.fs-target.in { animation: rise .45s var(--ease); }
+.fs-target b { font-size: 40px; font-weight: 900; letter-spacing: -.02em; line-height: 1; }
+.fs-target b.acute { color: var(--acute); } .fs-target b.right { color: var(--right); } .fs-target b.obtuse { color: var(--obtuse); }
+.fs-target span { font-size: 20px; font-weight: 700; }
+.fs-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.fs-map { padding: 5px 12px; border-radius: 999px; background: rgba(12,14,18,.8); font-size: 14px; font-weight: 750; }
+.fs-casts { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 14px; background: rgba(12,14,18,.85); border: 1px solid var(--line2); }
+.fs-casts i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line3); }
+.fs-casts i.on { background: var(--glow); border-color: var(--glow); }
+.fs-casts b { margin-left: 6px; font-family: var(--fm); font-size: 22px; }
+
+.fs-home { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 6%; background: rgba(8,10,14,.72); backdrop-filter: blur(8px); }
+.fs-home h3 { font-size: 40px; font-weight: 900; letter-spacing: -.03em; margin-bottom: 22px; }
+.fs-maps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.fs-mapbtn { padding: 0; border-radius: var(--r-l); border: 1px solid var(--line2); background: var(--bg2); overflow: hidden; cursor: pointer; text-align: left; transition: transform .3s var(--ease), border-color .3s; }
+.fs-mapbtn:hover { transform: translateY(-4px); border-color: var(--line3); }
+.fs-mapart { display: block; aspect-ratio: 16 / 8; }
+.fs-mapart svg { width: 100%; height: 100%; display: block; }
+.fs-mapinfo { display: flex; align-items: center; gap: 12px; padding: 16px 18px; }
+.fs-mapinfo b { font-size: 26px; font-weight: 850; }
+.fs-mapinfo em { margin-left: auto; font-style: normal; font-size: 15px; font-weight: 750; color: var(--mute); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line2); }
+
+/* ══ 조각 공용 (게임 4·5) ═════════════════════ */
+.pk { cursor: grab; touch-action: none; }
+.pk.fly { transition: transform .35s var(--ease); }
+.pk.dragging { cursor: grabbing; }
+.pk polygon { fill: #2A303C; stroke: rgba(242,237,227,.85); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: fill .25s; }
+.pk:hover polygon { fill: #343B49; }
+.pk.sel polygon, .pk.dragging polygon { stroke: var(--glow); stroke-width: 4; filter: drop-shadow(0 0 8px rgba(98,240,211,.5)); }
+.pk.placed polygon { fill: #3A4152; }
+.pk.locked { cursor: default; }
+.pk.locked.acute polygon, .pk.placed.acute polygon   { fill: var(--acute); stroke: #0C0E12; }
+.pk.locked.right polygon, .pk.placed.right polygon   { fill: var(--right); stroke: #0C0E12; }
+.pk.locked.obtuse polygon, .pk.placed.obtuse polygon { fill: var(--obtuse); stroke: #0C0E12; }
+.pk.hint polygon { animation: pkhint .6s ease-in-out infinite alternate; }
+@keyframes pkhint { to { fill: rgba(98,240,211,.55); stroke: #fff; } }
+.pk-handle { cursor: pointer; }
+.pk-handle circle { fill: var(--glow); }
+.pk-handle path { fill: none; stroke: #0C0E12; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ══ 4. 퍼즐을 맞춰라! ═════════════════════════ */
+.sh { height: 100%; display: grid; grid-template-columns: 1fr 230px; gap: 12px; padding: 12px; }
+.sh-field { position: relative; min-height: 0; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); overflow: hidden; }
+.sh-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.sh-board { fill: #10131A; stroke: rgba(242,237,227,.14); stroke-width: 2; }
+.sh-tray { fill: #171B23; stroke: rgba(242,237,227,.08); }
+.sh-traylabel { font-size: 24px; font-weight: 800; fill: var(--mute); text-anchor: middle; }
+.sh-order { font-size: 30px; font-weight: 800; fill: var(--paper); text-anchor: middle; letter-spacing: -.02em; }
+.sh-order .acute { fill: var(--acute); } .sh-order .right { fill: var(--right); } .sh-order .obtuse { fill: var(--obtuse); }
+.sh-slot polygon { fill: rgba(242,237,227,.04); stroke: rgba(242,237,227,.55); stroke-width: 2.5; stroke-dasharray: 9 7; stroke-linejoin: round; }
+.sh-slot.filled polygon { stroke: none; }
+.sh-slot.miss polygon { stroke: var(--bad); }
+.sh-vlabel { font-size: 15px; font-weight: 700; fill: rgba(242,237,227,.7); text-anchor: middle; pointer-events: none; }
+.sh-slot.filled .sh-vlabel { display: none; }
+.sh-decoline { fill: none; stroke: rgba(242,237,227,.4); stroke-width: 6; stroke-linecap: round; }
+.sh-decodot { fill: #0C0E12; }
+.sh-side { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.sh-stat { padding: 14px 18px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.sh-stat em { display: block; font-style: normal; font-size: 13px; font-weight: 700; color: var(--mute); }
+.sh-stat b { font-family: var(--fm); font-size: 34px; font-weight: 800; line-height: 1.1; }
+.sh-stat span { margin-left: 4px; font-size: 15px; color: var(--mute); }
+.sh-stat.big b { font-size: 64px; }
+.sh-stat.big.hot b { color: var(--acute); }
+.sh-dots { display: flex; gap: 6px; padding: 0 4px; }
+.sh-dots i { flex: 1; height: 8px; border-radius: 4px; background: var(--bg4); }
+.sh-dots i.now { background: var(--line3); }
+.sh-dots i.ok { background: var(--glow); }
+.sh-dots i.no { background: var(--bad); }
+.sh-help { margin-top: auto; font-size: 14px; color: var(--mute); padding: 0 4px; }
+
+/* ══ 5. 칠각 게임 ═══════════════════════════════ */
+.tg { height: 100%; display: grid; grid-template-columns: 170px 1fr 260px; gap: 12px; padding: 12px; }
+.tg-left, .tg-right { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.tg-left > div, .tg-top > div, .tg-mission, .tg-fill { padding: 12px 14px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.tg em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--mute); }
+#tg-hearts { display: flex; gap: 4px; }
+#tg-hearts svg { width: 34px; height: 34px; }
+#tg-hearts path { fill: var(--bg4); }
+#tg-hearts .on path { fill: var(--acute); }
+.tg-level em { display: block; margin-bottom: 6px; }
+#tg-faces { display: flex; flex-direction: column; gap: 4px; }
+.tg-face { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 8px; border-radius: 10px; border: 1px solid transparent; background: transparent; cursor: pointer; color: var(--mute); font-size: 14px; font-weight: 700; }
+.tg-face svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.tg-face svg .f { fill: currentColor; stroke: none; }
+.tg-face.on { color: var(--paper); border-color: var(--line3); background: var(--bg3); }
+.tg-round b { font-family: var(--fm); font-size: 36px; font-weight: 800; margin-left: 4px; }
+.tg-round span { font-family: var(--fm); color: var(--mute); }
+.tg-field { position: relative; min-height: 0; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); overflow: hidden; }
+.tg-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.tg-frame-bg { fill: #0E1117; }
+.tg-frame { fill: none; stroke: #E9DCC2; stroke-width: 8; }
+.tg-traybg { fill: #171B23; stroke: rgba(242,237,227,.08); }
+.tg-beep { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 16px 26px; border-radius: 14px; background: var(--bad); color: #fff; font-size: 26px; font-weight: 900; white-space: nowrap; animation: rise .25s var(--ease); pointer-events: none; }
+.tg-top { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tg-timer { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }
+.tg-timer b { font-family: var(--fm); font-size: 40px; font-weight: 800; line-height: 1; }
+.tg-timer.hot b { color: var(--acute); }
+.tg-shopbtn { display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--r); border: 1px solid var(--line2); background: var(--bg3); font-size: 15px; font-weight: 800; cursor: pointer; }
+.tg-shopbtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+.tg-shopbtn:hover { background: var(--bg4); }
+.tg-points b { display: block; font-family: var(--fm); font-size: 30px; font-weight: 800; line-height: 1.1; }
+.tg-points b.neg { color: var(--bad); }
+.tg-shop { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: var(--r); background: var(--bg3); border: 1px solid var(--line2); }
+.tg-shop button { display: flex; justify-content: space-between; height: 40px; align-items: center; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line2); background: var(--bg2); font-size: 14px; font-weight: 700; cursor: pointer; }
+.tg-shop button b { font-family: var(--fm); color: var(--glow); }
+.tg-shop button:disabled { opacity: .4; cursor: not-allowed; }
+.tg-mission { font-size: 22px; font-weight: 800; line-height: 1.35; }
+.tg-mission b.acute { color: var(--acute); } .tg-mission b.right { color: var(--right); } .tg-mission b.obtuse { color: var(--obtuse); }
+.tg-fillbar { position: relative; height: 12px; border-radius: 6px; background: var(--bg4); }
+.tg-fillbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: var(--paper); transition: width .3s; }
+.tg-fillbar s { position: absolute; top: -5px; bottom: -5px; width: 3px; background: var(--glow); }
+.tg-fill p { margin-top: 8px; color: var(--mute); font-size: 15px; }
+.tg-fill p b { font-family: var(--fm); font-size: 28px; color: var(--paper); }
+.tg-fill.pass .tg-fillbar i { background: var(--glow); }
+.tg-done { width: 100%; height: 52px; font-size: 17px; }
+.tg-help { margin-top: auto; font-size: 14px; color: var(--mute); }
+
+/* 홈 포스터 5장 */
+.posters.n5 { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.posters.n5 .poster-info { padding: 14px 16px 16px; }
+.posters.n5 .poster-info h2 { font-size: 22px; }
+.posters.n5 .poster-line { font-size: 14px; }
+.posters.n5 .tri-tag { height: 24px; padding: 0 8px; font-size: 12px; }

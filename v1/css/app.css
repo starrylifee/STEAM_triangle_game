@@ -305,3 +305,7 @@ kbd {
   .gtitle h2 { font-size: 19px; }
   .tbtn { padding: 0 12px; font-size: 14px; }
 }
+
+/* 최초 버전 표시 */
+.v-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--obtuse); color: #0C0E12; font-size: 12px; font-weight: 900; margin-left: 4px; }
+.gtitle .v-tag { margin: 4px 0 0; height: 20px; font-size: 11px; }

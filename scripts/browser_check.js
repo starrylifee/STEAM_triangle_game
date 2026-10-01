@@ -12,9 +12,10 @@ const check = (ok, msg) => { console.log((ok ? '  ok  ' : '  FAIL ') + msg); if 
   const b = await puppeteer.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: 'new' });
   const p = await b.newPage();
   const errs = [];
-  p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+  p.on('console', m => { if (m.type() === 'error' && !/ERR_CONNECTION_REFUSED|fonts\./.test(m.text())) errs.push(m.text()); });
   p.on('pageerror', e => errs.push('PAGE ' + e.message));
-  p.on('requestfailed', r => errs.push('REQ ' + r.url()));
+  // 구글 글꼴은 네트워크에 따라 막힐 수 있다 (없어도 기본 글꼴로 뜬다) → 오류로 세지 않는다
+  p.on('requestfailed', r => { if (!/fonts\.(googleapis|gstatic)/.test(r.url())) errs.push('REQ ' + r.url()); });
   p.on('response', r => { if (r.status() >= 400) errs.push(r.status() + ' ' + r.url()); });
 
   for (const [W, H] of [[1366, 657], [1920, 1080]]) {
@@ -132,6 +133,32 @@ const check = (ok, msg) => { console.log((ok ? '  ok  ' : '  FAIL ') + msg); if 
     check(s5 <= 0, `${W}x${H} 게임5 스크롤 ${s5}`);
     if (W === 1366) await p.screenshot({ path: `${OUT}/c_g5.png` });
     await p.keyboard.press('Escape'); await wait(300);
+  }
+
+  // 최신 ↔ 최초 버전 오가기
+  {
+    const q = await b.newPage(); await q.setViewport({ width: 1366, height: 657 });
+    const e2 = []; q.on('pageerror', e => e2.push(e.message)); q.on('response', r => { if (r.status() >= 400) e2.push(r.status() + ' ' + r.url()); });
+    for (const [n, id, has] of [[1, 'rotate', true], [2, 'pizza', true], [3, 'fish', true], [4, 'shape', false], [5, 'chilgak', false]]) {
+      await q.goto(BASE + '#' + id, { waitUntil: 'networkidle0' }); await wait(300);
+      const vis = await q.evaluate(() => !document.querySelector('#btn-v1').hidden);
+      check(vis === has, `게임${n} 최초 버전 버튼 ${vis ? '보임' : '숨김'}`);
+      if (!has) continue;
+      await Promise.all([q.waitForNavigation({ waitUntil: 'networkidle0' }), q.click('#btn-v1')]);
+      await wait(400);
+      const r = await q.evaluate(() => ({ url: location.pathname + location.hash, n: current && current.n, tag: !!document.querySelector('.gtitle .v-tag') }));
+      check(r.url.includes('/v1/') && r.n === n && r.tag, `게임${n} → 최초 버전 열림 (${r.url})`);
+      await q.click('#btn-plan'); await wait(500);
+      const img = await q.evaluate(() => { const i = document.querySelector('.plan-pages img'); return i && i.complete && i.naturalWidth > 0; });
+      check(img, `게임${n} 최초 버전 기획안 그림`);
+      await q.keyboard.press('Escape'); await wait(200);
+      if (n === 1) await q.screenshot({ path: `${OUT}/c_v1_g1.png` });
+      await Promise.all([q.waitForNavigation({ waitUntil: 'networkidle0' }), q.click('#btn-latest')]);
+      const back = await q.evaluate(() => ({ url: location.pathname + location.hash, n: current && current.n }));
+      check(!back.url.includes('/v1/') && back.n === n, `게임${n} → 최신 버전으로 돌아옴`);
+    }
+    check(e2.length === 0, '버전 오가기 오류 ' + e2.length + '건 ' + e2.slice(0, 3).join(' | '));
+    await q.close();
   }
 
   // 인쇄 쪽수
