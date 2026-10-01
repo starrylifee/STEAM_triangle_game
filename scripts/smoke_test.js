@@ -4,9 +4,9 @@ const fs = require('fs'), path = require('path');
 const { JSDOM } = require('jsdom');
 const ROOT = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');
-const files = ['core', 'data', 'games/rotate', 'games/pizza', 'games/fish', 'boot'];
+const files = ['core', 'data', 'games/rotate', 'games/pizza', 'games/fish', 'pieces', 'games/shape', 'games/tangram', 'boot'];
 const code = files.map(f => fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8')).join('\n;\n')
-  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify };';
+  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify, sameSpot, sameShape, centroid };';
 
 const dom = new JSDOM(html, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'http://localhost/' });
 const w = dom.window;
@@ -149,9 +149,111 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   R3.randWin = +(win / T * 100).toFixed(1);
   console.log('     각 범위', JSON.stringify(R3));
 
+  /* ── 4. 퍼즐을 맞춰라! ─────────────────────── */
+  console.log('\n[4] 퍼즐을 맞춰라!');
+  A.enterGame(4);
+  g = A.cur().game;
+  const R4 = { turnsPerProblem: [], piecesPerProblem: [] };
+  // 다른 종류 조각 → 튕김, 벌점 없음
+  {
+    const s = g.slots[0], c = A.centroid(s.pts);
+    const d = g.kit.list.find(q => q.cls !== g.cur.cls);
+    const ok = g.kit.dropAt(d, c[0], c[1]);
+    check(!ok && d.state === 'tray', '다른 종류 삼각형 → 쟁반으로 돌아감 (벌점 없음)');
+  }
+  for (let k = 0; k < g.p.problems; k++) {
+    let turns = 0;
+    for (const s of g.slots) {
+      const c = A.centroid(s.pts);
+      const q = g.kit.list.find(p => p.state === 'tray' && p.cls === g.cur.cls && !p.odd && A.sameShape(g.kit.world(p, 0, 0, 0), s.pts));
+      let r = q.rot, n = 0;
+      while (!A.sameSpot(g.kit.world(q, c[0], c[1], r), s.pts) && n < 4) { r = (r + 90) % 360; n++; }
+      turns += n;
+      g.kit.dropAt(q, c[0], c[1], r);
+    }
+    R4.turnsPerProblem.push(turns); R4.piecesPerProblem.push(g.slots.length);
+    check(g.slots.every(s => s.filled), `${g.cur.name.replace(/[을를]$/, '')} 완성 (조각 ${g.slots.length}개, 돌리기 ${turns}번)`);
+    await sleep(1300);
+  }
+  check(ovTitle() === '모두 완성!', `5문제 → ${ovTitle()}`);
+  clickOv(0);
+  g.left = 0.05; await sleep(300);
+  check(g.results.length === 1 && !g.results[0].ok, '시간 끝 → 그 문제 실패, 다음 문제');
+  await sleep(1500);
+  g.clearTimers(); Overlay_hide();
+
+  /* ── 5. 칠각 게임 ─────────────────────────── */
+  console.log('\n[5] 칠각 게임');
+  A.enterGame(5);
+  g = A.cur().game;
+  const fillIdeal = (cls) => {
+    // 미션 조각을 틀에 빈틈없이(또는 띠 모양으로) 놓는 이상적인 배치
+    g.mission = cls; g.buildPieces();
+    const F = g.F, mine = g.kit.list.filter(q => q.cls === cls);
+    let spots = [];
+    if (cls === 'right') {
+      const a = F.h / 2;
+      spots = [[[0, 0], [2 * a, 0], [0, a]], [[2 * a, 0], [2 * a, a], [0, a]], [[2 * a, 0], [3 * a, 0], [2 * a, a]], [[3 * a, 0], [3 * a, a], [2 * a, a]],
+        [[0, a], [a, a], [0, 2 * a]], [[a, a], [a, 2 * a], [0, 2 * a]], [[a, a], [3 * a, a], [a, 2 * a]], [[3 * a, a], [3 * a, 2 * a], [a, 2 * a]]];
+    } else {
+      const b = cls === 'obtuse' ? F.w / 2 : F.w / 3, h = cls === 'obtuse' ? F.h / 4 : F.h / 2;
+      for (let row = 0; row * h + h <= F.h + 0.1; row++) {
+        const y0 = row * h;
+        for (let x = 0; x + b <= F.w + 0.1; x += b) spots.push([[x, y0 + h], [x + b, y0 + h], [x + b / 2, y0]]);
+        for (let x = b / 2; x + b <= F.w + 0.1; x += b) spots.push([[x, y0], [x + b, y0], [x + b / 2, y0 + h]]);
+      }
+    }
+    spots = spots.map(t => t.map(([x, y]) => [x + F.x, y + F.y]));
+    let placed = 0;
+    for (const sp of spots) {
+      const c = A.centroid(sp);
+      const q = mine.find(p => p.state === 'tray' && A.sameShape(g.kit.world(p, 0, 0, 0), sp));
+      if (!q) break;
+      for (let r = 0; r < 4; r++) if (A.sameSpot(g.kit.world(q, c[0], c[1], r * 90), sp, 3)) { if (g.kit.dropAt(q, c[0], c[1], r * 90)) placed++; break; }
+    }
+    return { placed, pct: g.coverage(), pieces: mine.length };
+  };
+  const R5 = {};
+  for (const cls of ['right', 'obtuse', 'acute']) {
+    R5[cls] = fillIdeal(cls);
+    const need = g.passNeed();
+    check(R5[cls].pct >= need, `${cls} 이상적으로 채우면 ${R5[cls].pct}% (조각 ${R5[cls].placed}/${R5[cls].pieces}, 통과 ${need}%)`);
+  }
+  // 통과 → +2P
+  g.newGame(); g.mission = 'right'; fillIdeal('right');
+  const before = g.points; g.endRound(false);
+  check(g.points === before + 2, `라운드 통과 → +2P (${g.points}P)`);
+  await sleep(1500);
+  check(g.round === 2, '다음 라운드로');
+  // 실패 → 목숨 -1
+  g.endRound(false); check(g.lives === 2, '0%로 끝내면 목숨 -1');
+  await sleep(1500);
+  // 잘못된 삼각형 두 번 → -15 이하 → Lose
+  {
+    const F = g.F, w = g.kit.list.find(q => q.cls !== g.mission);
+    g.kit.dropAt(w, F.x + F.w / 2, F.y + F.h / 2);
+    check(g.points === 2 - 10, `잘못된 삼각형 → -10P (${g.points}P)`);
+    const w2 = g.kit.list.find(q => q.cls !== g.mission && q.state === 'tray');
+    g.kit.dropAt(w2, F.x + F.w / 2, F.y + F.h / 2);
+    await sleep(1000);
+    check(ovTitle() === 'Lose...', `두 번 틀리면 ${g.points}P → ${ovTitle()}`);
+    R5.wrongToLose = 2;
+  }
+  clickOv(0);
+  // 10라운드를 다 통과하면?
+  g.newGame();
+  for (let r = 0; r < g.p.rounds; r++) { g.busy = false; g.mission = 'right'; fillIdeal('right'); g.endRound(false); await sleep(1350); }
+  R5.allPassPoints = g.lastResult ? g.lastResult.points : g.points;
+  check(ovTitle() === '종료', `10라운드 모두 통과 → ${R5.allPassPoints}P, ${ovTitle()} (이기려면 ${g.p.winPoint}P)`);
+  clickOv(0);
+  // 상점
+  g.points = 20; g.renderTop(); const lt = g.left; g.buy('time');
+  check(g.points === 12 && Math.abs(g.left - lt - 15) < 0.5, '상점 15초 늘리기 → -8P');
+  g.clearTimers(); Overlay_hide();
+
   A.backHome();
   check(!A.cur(), '홈으로 돌아가면 게임 정리됨');
-  fs.writeFileSync(path.join(__dirname, 'measure.json'), JSON.stringify({ R1, R2, R3 }, null, 2));
+  fs.writeFileSync(path.join(__dirname, 'measure.json'), JSON.stringify({ R1, R2, R3, R4, R5 }, null, 2));
   console.log(fails ? `\n${fails}개 실패` : '\n모두 통과');
   process.exit(fails ? 1 : 0);
 })();

@@ -140,7 +140,7 @@ kbd {
 .poster-who { white-space: nowrap; }
 .poster-who { font-size: 14px; color: var(--mute); }
 .poster-who b { color: var(--paper); font-weight: 700; }
-.tri-tags { display: flex; gap: 6px; }
+.tri-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .tri-tag {
   display: inline-flex; align-items: center; gap: 6px;
   height: 28px; padding: 0 10px; border-radius: 999px;

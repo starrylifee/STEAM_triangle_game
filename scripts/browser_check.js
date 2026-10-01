@@ -98,11 +98,45 @@ const check = (ok, msg) => { console.log((ok ? '  ok  ' : '  FAIL ') + msg); if 
     }
     await p.keyboard.press('Escape'); await wait(300);
     check(await p.evaluate(() => !current && !document.querySelector('#view-home').hidden), 'Esc → 홈, 게임 정리');
+
+    // 게임 4 : 실제 마우스로 조각을 칸까지 끌어 놓기
+    await p.keyboard.press('4'); await wait(600);
+    const d4 = await p.evaluate(() => {
+      const g = current.game, s = g.slots[0];
+      const q = g.kit.list.find(x => x.cls === g.cur.cls && !x.odd && sameShape(g.kit.world(x, 0, 0, 0), s.pts));
+      const a = q.g.getBoundingClientRect();
+      const m = g.svg.getScreenCTM(), c = centroid(s.pts);
+      return { fx: a.x + a.width / 2, fy: a.y + a.height / 2, tx: m.a * c[0] + m.e, ty: m.d * c[1] + m.f, id: q.id };
+    });
+    await p.mouse.move(d4.fx, d4.fy); await p.mouse.down(); await p.mouse.move(d4.tx, d4.ty, { steps: 8 }); await p.mouse.up();
+    await wait(300);
+    const st4 = await p.evaluate((id) => current.game.kit.list[id].state, d4.id);
+    check(st4 === 'board' || st4 === 'locked', `게임4 마우스로 끌어 놓기 → ${st4}`);
+    const s4 = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    check(s4 <= 0, `${W}x${H} 게임4 스크롤 ${s4}`);
+    if (W === 1366) await p.screenshot({ path: `${OUT}/c_g4.png` });
+
+    // 게임 5 : 미션 조각을 틀 가운데로
+    await p.keyboard.press('Escape'); await wait(200);
+    await p.keyboard.press('5'); await wait(600);
+    const d5 = await p.evaluate(() => {
+      const g = current.game, q = g.kit.list.find(x => x.cls === g.mission);
+      const a = q.g.getBoundingClientRect(), m = g.svg.getScreenCTM(), F = g.F;
+      return { fx: a.x + a.width / 2, fy: a.y + a.height / 2, tx: m.a * (F.x + F.w / 2) + m.e, ty: m.d * (F.y + F.h / 2) + m.f, id: q.id };
+    });
+    await p.mouse.move(d5.fx, d5.fy); await p.mouse.down(); await p.mouse.move(d5.tx, d5.ty, { steps: 8 }); await p.mouse.up();
+    await wait(300);
+    const r5 = await p.evaluate((id) => ({ st: current.game.kit.list[id].state, pct: current.game.coverage() }), d5.id);
+    check(r5.st === 'placed' && r5.pct > 0, `게임5 마우스로 틀에 놓기 → ${r5.st} ${r5.pct}%`);
+    const s5 = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    check(s5 <= 0, `${W}x${H} 게임5 스크롤 ${s5}`);
+    if (W === 1366) await p.screenshot({ path: `${OUT}/c_g5.png` });
+    await p.keyboard.press('Escape'); await wait(300);
   }
 
   // 인쇄 쪽수
   const fs = require('fs');
-  for (const [page, want] of [['worksheet.html', 4]]) {
+  for (const [page, want] of [['worksheet.html', 6]]) {
     const q = await b.newPage();
     await q.goto(BASE + page, { waitUntil: 'networkidle0' });
     const pdf = await q.pdf({ format: 'A4', preferCSSPageSize: true, printBackground: true });

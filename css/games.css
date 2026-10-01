@@ -183,3 +183,105 @@
 .fs-mapinfo { display: flex; align-items: center; gap: 12px; padding: 16px 18px; }
 .fs-mapinfo b { font-size: 26px; font-weight: 850; }
 .fs-mapinfo em { margin-left: auto; font-style: normal; font-size: 15px; font-weight: 750; color: var(--mute); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line2); }
+
+/* ══ 조각 공용 (게임 4·5) ═════════════════════ */
+.pk { cursor: grab; touch-action: none; }
+.pk.fly { transition: transform .35s var(--ease); }
+.pk.dragging { cursor: grabbing; }
+.pk polygon { fill: #2A303C; stroke: rgba(242,237,227,.85); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: fill .25s; }
+.pk:hover polygon { fill: #343B49; }
+.pk.sel polygon, .pk.dragging polygon { stroke: var(--glow); stroke-width: 4; filter: drop-shadow(0 0 8px rgba(98,240,211,.5)); }
+.pk.placed polygon { fill: #3A4152; }
+.pk.locked { cursor: default; }
+.pk.locked.acute polygon, .pk.placed.acute polygon   { fill: var(--acute); stroke: #0C0E12; }
+.pk.locked.right polygon, .pk.placed.right polygon   { fill: var(--right); stroke: #0C0E12; }
+.pk.locked.obtuse polygon, .pk.placed.obtuse polygon { fill: var(--obtuse); stroke: #0C0E12; }
+.pk.hint polygon { animation: pkhint .6s ease-in-out infinite alternate; }
+@keyframes pkhint { to { fill: rgba(98,240,211,.55); stroke: #fff; } }
+.pk-handle { cursor: pointer; }
+.pk-handle circle { fill: var(--glow); }
+.pk-handle path { fill: none; stroke: #0C0E12; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ══ 4. 퍼즐을 맞춰라! ═════════════════════════ */
+.sh { height: 100%; display: grid; grid-template-columns: 1fr 230px; gap: 12px; padding: 12px; }
+.sh-field { position: relative; min-height: 0; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); overflow: hidden; }
+.sh-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.sh-board { fill: #10131A; stroke: rgba(242,237,227,.14); stroke-width: 2; }
+.sh-tray { fill: #171B23; stroke: rgba(242,237,227,.08); }
+.sh-traylabel { font-size: 24px; font-weight: 800; fill: var(--mute); text-anchor: middle; }
+.sh-order { font-size: 30px; font-weight: 800; fill: var(--paper); text-anchor: middle; letter-spacing: -.02em; }
+.sh-order .acute { fill: var(--acute); } .sh-order .right { fill: var(--right); } .sh-order .obtuse { fill: var(--obtuse); }
+.sh-slot polygon { fill: rgba(242,237,227,.04); stroke: rgba(242,237,227,.55); stroke-width: 2.5; stroke-dasharray: 9 7; stroke-linejoin: round; }
+.sh-slot.filled polygon { stroke: none; }
+.sh-slot.miss polygon { stroke: var(--bad); }
+.sh-vlabel { font-size: 15px; font-weight: 700; fill: rgba(242,237,227,.7); text-anchor: middle; pointer-events: none; }
+.sh-slot.filled .sh-vlabel { display: none; }
+.sh-decoline { fill: none; stroke: rgba(242,237,227,.4); stroke-width: 6; stroke-linecap: round; }
+.sh-decodot { fill: #0C0E12; }
+.sh-side { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.sh-stat { padding: 14px 18px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.sh-stat em { display: block; font-style: normal; font-size: 13px; font-weight: 700; color: var(--mute); }
+.sh-stat b { font-family: var(--fm); font-size: 34px; font-weight: 800; line-height: 1.1; }
+.sh-stat span { margin-left: 4px; font-size: 15px; color: var(--mute); }
+.sh-stat.big b { font-size: 64px; }
+.sh-stat.big.hot b { color: var(--acute); }
+.sh-dots { display: flex; gap: 6px; padding: 0 4px; }
+.sh-dots i { flex: 1; height: 8px; border-radius: 4px; background: var(--bg4); }
+.sh-dots i.now { background: var(--line3); }
+.sh-dots i.ok { background: var(--glow); }
+.sh-dots i.no { background: var(--bad); }
+.sh-help { margin-top: auto; font-size: 14px; color: var(--mute); padding: 0 4px; }
+
+/* ══ 5. 칠각 게임 ═══════════════════════════════ */
+.tg { height: 100%; display: grid; grid-template-columns: 170px 1fr 260px; gap: 12px; padding: 12px; }
+.tg-left, .tg-right { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.tg-left > div, .tg-top > div, .tg-mission, .tg-fill { padding: 12px 14px; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); }
+.tg em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--mute); }
+#tg-hearts { display: flex; gap: 4px; }
+#tg-hearts svg { width: 34px; height: 34px; }
+#tg-hearts path { fill: var(--bg4); }
+#tg-hearts .on path { fill: var(--acute); }
+.tg-level em { display: block; margin-bottom: 6px; }
+#tg-faces { display: flex; flex-direction: column; gap: 4px; }
+.tg-face { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 8px; border-radius: 10px; border: 1px solid transparent; background: transparent; cursor: pointer; color: var(--mute); font-size: 14px; font-weight: 700; }
+.tg-face svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.tg-face svg .f { fill: currentColor; stroke: none; }
+.tg-face.on { color: var(--paper); border-color: var(--line3); background: var(--bg3); }
+.tg-round b { font-family: var(--fm); font-size: 36px; font-weight: 800; margin-left: 4px; }
+.tg-round span { font-family: var(--fm); color: var(--mute); }
+.tg-field { position: relative; min-height: 0; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); overflow: hidden; }
+.tg-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.tg-frame-bg { fill: #0E1117; }
+.tg-frame { fill: none; stroke: #E9DCC2; stroke-width: 8; }
+.tg-traybg { fill: #171B23; stroke: rgba(242,237,227,.08); }
+.tg-beep { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 16px 26px; border-radius: 14px; background: var(--bad); color: #fff; font-size: 26px; font-weight: 900; white-space: nowrap; animation: rise .25s var(--ease); pointer-events: none; }
+.tg-top { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tg-timer { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }
+.tg-timer b { font-family: var(--fm); font-size: 40px; font-weight: 800; line-height: 1; }
+.tg-timer.hot b { color: var(--acute); }
+.tg-shopbtn { display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--r); border: 1px solid var(--line2); background: var(--bg3); font-size: 15px; font-weight: 800; cursor: pointer; }
+.tg-shopbtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+.tg-shopbtn:hover { background: var(--bg4); }
+.tg-points b { display: block; font-family: var(--fm); font-size: 30px; font-weight: 800; line-height: 1.1; }
+.tg-points b.neg { color: var(--bad); }
+.tg-shop { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: var(--r); background: var(--bg3); border: 1px solid var(--line2); }
+.tg-shop button { display: flex; justify-content: space-between; height: 40px; align-items: center; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line2); background: var(--bg2); font-size: 14px; font-weight: 700; cursor: pointer; }
+.tg-shop button b { font-family: var(--fm); color: var(--glow); }
+.tg-shop button:disabled { opacity: .4; cursor: not-allowed; }
+.tg-mission { font-size: 22px; font-weight: 800; line-height: 1.35; }
+.tg-mission b.acute { color: var(--acute); } .tg-mission b.right { color: var(--right); } .tg-mission b.obtuse { color: var(--obtuse); }
+.tg-fillbar { position: relative; height: 12px; border-radius: 6px; background: var(--bg4); }
+.tg-fillbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: var(--paper); transition: width .3s; }
+.tg-fillbar s { position: absolute; top: -5px; bottom: -5px; width: 3px; background: var(--glow); }
+.tg-fill p { margin-top: 8px; color: var(--mute); font-size: 15px; }
+.tg-fill p b { font-family: var(--fm); font-size: 28px; color: var(--paper); }
+.tg-fill.pass .tg-fillbar i { background: var(--glow); }
+.tg-done { width: 100%; height: 52px; font-size: 17px; }
+.tg-help { margin-top: auto; font-size: 14px; color: var(--mute); }
+
+/* 홈 포스터 5장 */
+.posters.n5 { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.posters.n5 .poster-info { padding: 14px 16px 16px; }
+.posters.n5 .poster-info h2 { font-size: 22px; }
+.posters.n5 .poster-line { font-size: 14px; }
+.posters.n5 .tri-tag { height: 24px; padding: 0 8px; font-size: 12px; }

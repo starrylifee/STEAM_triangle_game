@@ -5,6 +5,9 @@
 const TAG_NAME = { acute: '예각', right: '직각', obtuse: '둔각', move: '돌리기' };
 
 function renderHome() {
+  const n = Object.keys(GAMES).length;
+  $('#posters').classList.toggle('n5', n >= 5);
+  $('#home-keys').innerHTML = Object.keys(GAMES).map(k => `<kbd>${k}</kbd>`).join('');
   $('#posters').innerHTML = Object.entries(GAMES).map(([n, g]) => `
     <button class="poster" type="button" data-n="${n}">
       <span class="poster-num">${pad2(n)}</span>
@@ -64,7 +67,7 @@ $('#modal').onclick = (e) => { if (e.target.id === 'modal') Modal.close(); };
 
 function openPlan() {
   const n = current.n, g = GAMES[n];
-  const cap = ['1. 규칙 설명', '2. 배운 내용', '3. 디자인', '4. 디자인 2'];
+  const cap = g.caps || ['1. 규칙 설명', '2. 배운 내용', '3. 디자인', '4. 디자인 2'];
   Modal.open(`기획안 · ${g.title}`, null, () => `
     <div class="plan-pages">${g.pages.map((p, i) => `
       <figure><img src="source_images/${p}" alt="${g.title} 기획서 ${i + 1}쪽" loading="lazy"><figcaption>${cap[i]}</figcaption></figure>`).join('')}

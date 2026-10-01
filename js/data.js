@@ -22,14 +22,29 @@ const GAMES = {
     line: '빛나는 지느러미의 각을 보고 말한 물고기만 낚는다',
     tags: ['acute', 'right', 'obtuse'],
     pages: ['g3_page_1.jpg', 'g3_page_2.jpg', 'g3_page_3.jpg', 'g3_page_4.jpg']
+  },
+  4: {
+    id: 'shape', title: '퍼즐을 맞춰라!', who: '안경 ⌐o-o', team: 'C',
+    line: '문장이 말한 삼각형으로만 집·산·우산 모양을 완성한다',
+    tags: ['acute', 'right', 'obtuse', 'move'],
+    pages: ['g4_page_1.jpg', 'g4_page_2.jpg', 'g4_page_3.jpg', 'g4_page_4.jpg']
+  },
+  5: {
+    id: 'chilgak', title: '칠각 게임', who: '사람들', team: 'D',
+    line: '네모 틀을 한 가지 삼각형으로만 칠교처럼 채운다',
+    tags: ['acute', 'right', 'obtuse'],
+    pages: ['g5_page_1.jpg', 'g5_page_2.jpg', 'g5_page_3.jpg', 'g5_page_4.jpg', 'g5_page_5.jpg'],
+    caps: ['1. 규칙 설명', '1. 규칙 설명 (뒷장)', '2. 배운 내용', '3. 디자인', '4. 디자인 2']
   }
 };
 
-/* 5모둠 중 제출한 2모둠. 나머지는 빈 자리 */
+/* 5모둠 중 제출한 모둠. 나머지는 빈 자리 */
 const TEAMS = [
   { id: 'A', names: ['아야어여우유어이'], games: [1] },
   { id: 'B', names: ['키위 맛 우유', '잼민이 아닌데요?'], games: [2, 3] },
-  { id: null }, { id: null }, { id: null }
+  { id: 'C', names: ['안경 ⌐o-o'], games: [4] },
+  { id: 'D', names: ['사람들'], games: [5] },
+  { id: null }
 ];
 
 /* ── 홈 포스터 그림 ─────────────────────────────── */
@@ -81,6 +96,32 @@ const POSTER_ART = {
     </g>
     <g opacity=".75"><ellipse cx="330" cy="210" rx="30" ry="18" fill="#FFB347"/><path d="M305 210 L286 198 L286 222Z" fill="#FFB347"/><path d="M318 194 L346 194 L328 176Z" fill="none" stroke="#62F0D3" stroke-width="2.5"/></g>
     <g opacity=".6"><ellipse cx="330" cy="92" rx="22" ry="13" fill="#8FD3C1"/><path d="M312 92 L298 83 L298 101Z" fill="#8FD3C1"/></g>
+  </svg>`,
+  4: `<svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="260" fill="#10131A"/>
+    <g fill="none" stroke="rgba(242,237,227,.5)" stroke-width="2.5" stroke-dasharray="8 6" stroke-linejoin="round">
+      <path d="M70 110 L130 110 L130 50 Z"/><path d="M110 110 L170 110 L170 210 Z"/><path d="M70 110 L70 210 L170 210 Z"/>
+    </g>
+    <path d="M130 110 L190 110 L130 50 Z" fill="#3D7CFF"/>
+    <path d="M70 110 L110 110 L70 160 Z" fill="none"/>
+    <g class="spin"><path d="M262 92 L338 92 L262 168 Z" fill="#3D7CFF" stroke="#62F0D3" stroke-width="3" stroke-linejoin="round"/></g>
+    <path d="M350 70 a26 26 0 1 1 -14 -20" fill="none" stroke="#62F0D3" stroke-width="3" stroke-linecap="round"/>
+    <path d="M333 40 l4 11 l-12 2" fill="none" stroke="#62F0D3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M230 200 L270 200 L250 166 Z" fill="#FF5A36" opacity=".9"/><path d="M300 222 L370 222 L335 204 Z" fill="#FFB81C" opacity=".9"/>
+    <text x="96" y="104" font-size="11" font-weight="700" fill="rgba(242,237,227,.7)" text-anchor="middle" font-family="Pretendard Variable, sans-serif">직각</text>
+  </svg>`,
+  5: `<svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="260" fill="#12151B"/>
+    <rect x="96" y="40" width="210" height="140" fill="#0E1117" stroke="#E9DCC2" stroke-width="6"/>
+    <g stroke="#0C0E12" stroke-width="2" stroke-linejoin="round">
+      <path d="M96 40 L236 40 L96 110 Z" fill="#FFB81C"/><path d="M236 40 L236 110 L96 110 Z" fill="#FFB81C" opacity=".85"/>
+      <path d="M236 40 L306 40 L236 110 Z" fill="#FFB81C" opacity=".7"/><path d="M96 110 L166 110 L96 180 Z" fill="#FFB81C" opacity=".8"/>
+    </g>
+    <g fill="#FF5A36"><path d="M26 28 c-6-6-14 0-8 7 l8 8 l8-8 c6-7-2-13-8-7z"/><path d="M50 28 c-6-6-14 0-8 7 l8 8 l8-8 c6-7-2-13-8-7z"/><path d="M74 28 c-6-6-14 0-8 7 l8 8 l8-8 c6-7-2-13-8-7z" opacity=".25"/></g>
+    <text x="354" y="70" font-size="34" font-weight="800" fill="#62F0D3" text-anchor="middle" font-family="JetBrains Mono, monospace">60%</text>
+    <path d="M60 222 L120 222 L90 196 Z" fill="none" stroke="rgba(242,237,227,.7)" stroke-width="2.5"/>
+    <path d="M150 230 L230 230 L150 196 Z" fill="none" stroke="rgba(242,237,227,.7)" stroke-width="2.5"/>
+    <path d="M260 226 L360 226 L310 204 Z" fill="none" stroke="rgba(242,237,227,.7)" stroke-width="2.5"/>
   </svg>`
 };
 
@@ -145,6 +186,48 @@ const LETTERS = {
       '다섯 번째 물고기도 첫 번째와 똑같아요. 잡을수록 무엇이 바뀌면 좋을까요?'
     ],
     ask: '내가 정한 것도, 아쉬운 곳도 모두 직접 바꿀 수 있어요. 세 맵을 다 해 보고 활동지에 적어 주세요.',
+    next: '적어 준 대로 고쳐서 최종판을 만들게요.',
+    from: '게임을 옮긴 AI'
+  }],
+  4: [{
+    v: '1차', to: '안경 ⌐o-o에게',
+    body: [
+      '「퍼즐을 맞춰라!」를 화면으로 옮겼어요. 디자인 2에 모양 칸의 꼭짓점마다 「직각·예각·예각」을 적어 둔 덕분에 칸이 어떤 삼각형 자리인지 바로 그릴 수 있었어요.',
+      '「직각삼각형을 사용해서 집을 만들어 보세요.」 문장, 오른쪽 「삼각형들」 칸, 남은 문제·제한시간·남은 시간, 삼각형을 돌리는 화살표는 기획서 그대로예요.'
+    ],
+    mine: [
+      '문제 5개의 모양은 집·배(직각), 산·물고기(예각), 우산(둔각)으로 정했어요.',
+      '제한시간 30초는 한 문제마다로 했어요. 시간이 다 되면 그 문제는 실패하고 다음 문제로 넘어가요.',
+      '다른 종류 삼각형을 칸에 넣으면 쟁반으로 돌아가요. 벌점은 없어요.',
+      '삼각형은 한 번에 90°씩 돌아가요. 톡 누르거나 R 키, 초록 화살표로 돌려요.'
+    ],
+    hints: [
+      '칸 꼭짓점에 예각·직각이 적혀 있어서, 쟁반의 삼각형을 직접 살펴보지 않아도 무엇을 골라야 할지 알 수 있어요. 삼각형을 구별하는 연습이 줄어들 수 있어요. 글씨를 그대로 둘까요?',
+      '30초 안에 삼각형 서너 개를 끌어오고 여러 번 돌려야 해요. 해 보면서 시간이 넉넉한지 빠듯한지 느껴 보세요.'
+    ],
+    ask: '내가 정한 것도, 아쉬운 곳도 모두 직접 바꿀 수 있어요. 게임을 해 보고 활동지에 적어 주세요.',
+    next: '적어 준 대로 고쳐서 최종판을 만들게요.',
+    from: '게임을 옮긴 AI'
+  }],
+  5: [{
+    v: '1차', to: '사람들에게',
+    body: [
+      '「칠각 게임」을 화면으로 옮겼어요. 규칙을 뒷장까지 꼼꼼히 써 준 덕분에 포인트, 상점 값, 라운드 시간을 숫자 그대로 넣을 수 있었어요. 미션마다 통과 기준(직각 60%, 둔각 50%, 예각 70%)을 다르게 정한 것이 특히 좋았어요.',
+      '하트 세 개 목숨, 얼굴 세 개 난이도, 자물쇠 힌트 상점, 「○○삼각형으로만 채우세요.」 상자, 「삐빅, 잘못된 삼각형입니다」, Win!과 Lose...는 기획서 그대로예요.'
+    ],
+    mine: [
+      '2포인트는 한 라운드를 통과할 때 받아요.',
+      '라운드를 통과하지 못하면 목숨이 하나 줄어요.',
+      '난이도는 섞여 있는 다른 삼각형 수로 나눴어요. 쉬움 2개, 보통 4개, 어려움 6개예요.',
+      '라운드마다 미션(직각·둔각·예각)은 무작위로 나와요.',
+      '삼각형 1개 힌트는 맞는 삼각형 하나를 3초 동안 빛나게 해 줘요.',
+      '10라운드가 끝날 때까지 50포인트를 못 모으면 「종료」가 떠요.'
+    ],
+    hints: [
+      '10라운드를 모두 통과하면 포인트가 몇 점이 될지 계산해 보세요. 이기려면 50포인트가 필요해요.',
+      '잘못된 삼각형을 몇 번 고르면 게임이 끝나는지 세어 보세요. 생각보다 빨리 끝날 수 있어요.'
+    ],
+    ask: '내가 정한 것도, 아쉬운 곳도 모두 직접 바꿀 수 있어요. 게임을 해 보고 활동지에 적어 주세요.',
     next: '적어 준 대로 고쳐서 최종판을 만들게요.',
     from: '게임을 옮긴 AI'
   }]
