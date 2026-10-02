@@ -87,7 +87,7 @@ function openLetter() {
       <div class="mine"><p><b>${l.changes ? '이번에 내가 정한 것' : '기획서에 없어서 내가 정한 것'}</b></p><ul>${l.mine.map(x => `<li>${x}</li>`).join('')}</ul></div>
       <div class="hint"><p><b>조금 아쉬울 수 있는 곳</b></p>${l.hints.map(h => `<p class="h">${h}</p>`).join('')}</div>
       <p>${l.ask}</p>
-      <p>${l.next}</p>
+      ${l.next ? `<p>${l.next}</p>` : ''}
       <p class="from">${l.from}</p>
     </article>`;
   }, '', Math.max(0, list.length - 1));
