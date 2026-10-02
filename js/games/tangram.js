@@ -8,13 +8,13 @@ class GameTangram extends GameBase {
     super();
     this.paramSpec = [
       { key: 'lives',      label: '목숨',                       orig: 3,   unit: '개', min: 1, max: 9,   src: 'plan', note: '하트 세 개' },
-      { key: 'timeEarly',  label: '제한시간 1~4라운드',          orig: 90,  unit: '초', min: 10, max: 300, src: 'plan', note: '1분 30초' },
-      { key: 'timeLate',   label: '제한시간 5~10라운드',         orig: 60,  unit: '초', min: 10, max: 300, src: 'plan', note: '1분' },
+      { key: 'timeEarly',  label: '제한시간 1~4라운드',          orig: 120, unit: '초', min: 10, max: 300, src: 'plan', note: '1차 1분 30초 → 3차 페이퍼 "시간을 2분으로"' },
+      { key: 'timeLate',   label: '제한시간 5~10라운드',         orig: 120, unit: '초', min: 10, max: 300, src: 'plan', note: '1차 1분 → 3차 페이퍼 "시간을 2분으로"' },
       { key: 'rounds',     label: '라운드 수',                   orig: 10,  unit: '라운드', min: 1, max: 30, src: 'plan', note: '1~10라운드가 끝' },
       { key: 'passPoint',  label: '통과하면 받는 포인트',         orig: 2,   unit: 'P', min: 0, max: 50,  src: 'plan', note: '"퍼즐을 맞추면 2포인트"' },
-      { key: 'wrongPoint', label: '잘못된 삼각형 벌점',           orig: 10,  unit: 'P', min: 0, max: 50,  src: 'plan', note: '' },
+      { key: 'fullBonus',  label: '틀을 다 채우면 더 받는 포인트', orig: 5,   unit: 'P', min: 0, max: 50,  src: 'mine', note: '3차 : 10라운드를 다 통과해도 20P라 50P에 닿지 못해서' },
+      { key: 'wrongPoint', label: '잘못된 삼각형 벌점',           orig: 0,   unit: 'P', min: 0, max: 50,  src: 'plan', note: '1차 10P → 3차 페이퍼 "마이너스가 없었으면" (지는 포인트 -15P도 없앰)' },
       { key: 'winPoint',   label: '이기는 포인트',               orig: 50,  unit: 'P', min: 1, max: 200, src: 'plan', note: '' },
-      { key: 'losePoint',  label: '지는 포인트',                 orig: -15, unit: 'P', min: -100, max: 0, src: 'plan', note: '' },
       { key: 'passRight',  label: '통과 기준 — 직각 미션',        orig: 60,  unit: '%', min: 1, max: 100, src: 'plan', note: '' },
       { key: 'passObtuse', label: '통과 기준 — 둔각 미션',        orig: 50,  unit: '%', min: 1, max: 100, src: 'plan', note: '' },
       { key: 'passAcute',  label: '통과 기준 — 예각 미션',        orig: 70,  unit: '%', min: 1, max: 100, src: 'plan', note: '' },
@@ -39,6 +39,9 @@ class GameTangram extends GameBase {
     }
     this.level = 0;                                          // 0 쉬움 · 1 보통 · 2 어려움
     this.SAMPLE = 6;                                         // 채운 % 를 잴 때 점 간격
+    this.FULL = 99;                                          // 이만큼 차면 「다 채움」 (점으로 재서 100이 조금 모자랄 수 있다)
+    // 조각 색 : 종류와 상관없이 섞어 칠한다 (색으로 종류를 알 수 없게). 3차 페이퍼 "알록달록"
+    this.COLORS = ['#E8603C', '#3A7BE0', '#F2B632', '#2FA37A', '#8A63D2', '#E2668F', '#27A9C1', '#9BC53D'];
   }
 
   mount(stage) {
@@ -53,7 +56,7 @@ class GameTangram extends GameBase {
         </aside>
         <div class="tg-field">
           <svg class="tg-svg" viewBox="0 0 ${this.W} ${this.H}" preserveAspectRatio="xMidYMid meet">
-            <defs><pattern id="tg-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="rgba(242,237,227,.06)"/></pattern></defs>
+            <defs><pattern id="tg-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="rgba(12,14,18,.07)"/></pattern></defs>
             <rect class="tg-frame-bg" x="${F.x}" y="${F.y}" width="${F.w}" height="${F.h}"/>
             <rect x="${F.x}" y="${F.y}" width="${F.w}" height="${F.h}" fill="url(#tg-grid)"/>
             <rect class="tg-frame" x="${F.x - 6}" y="${F.y - 6}" width="${F.w + 12}" height="${F.h + 12}" rx="6"/>
@@ -166,6 +169,8 @@ class GameTangram extends GameBase {
     const big = Math.max(...specs.map(sp => 2 * Math.max(...sp.pts.map(q => Math.hypot(q[0], q[1])))));
     this.kit.o.trayScale = Math.min(0.42, (Math.min(cw, ch) - 12) / big);
     const list = shuffle(specs).map(sp => this.kit.add(Object.assign(sp, { home: { x: 0, y: 0 } })));
+    const pal = shuffle(this.COLORS);
+    list.forEach((p, i) => { p.poly.style.fill = pal[i % pal.length]; });
     this.kit.layoutTray(list, this.tray, cols);
     list.forEach(p => this.kit.home(p));
   }
@@ -233,11 +238,10 @@ class GameTangram extends GameBase {
     return pct;
   }
   wrong() {
-    this.points -= this.p.wrongPoint; this.renderTop();
+    this.points = Math.max(0, this.points - this.p.wrongPoint); this.renderTop();
     SFX.bad();
     const b = $('#tg-beep'); b.hidden = true; void b.offsetWidth; b.hidden = false;
     this.after(1300, () => { b.hidden = true; });
-    if (this.points <= this.p.losePoint) this.after(700, () => this.finish('lose'));
   }
 
   /* ── 상점 ───────────────────────────────── */
@@ -269,11 +273,12 @@ class GameTangram extends GameBase {
     this.busy = true;
     const pct = this.coverage(), need = this.passNeed(), pass = pct >= need;
     this.log.push({ round: this.round, mission: this.mission, pct, pass, timeout });
-    if (pass) { this.points += this.p.passPoint; SFX.win(); Toast.show(`통과 ${pct}%`, 'good'); }
+    const full = pct >= this.FULL;
+    if (pass) { this.points += this.p.passPoint + (full ? this.p.fullBonus : 0); SFX.win(); Toast.show(full ? `꽉 채움 +${this.p.passPoint + this.p.fullBonus}P` : `통과 ${pct}%`, 'good'); }
     else { this.lives--; SFX.lose(); Toast.show(`${timeout ? '시간 끝 ' : ''}${pct}%`, 'bad'); }
     this.renderTop();
     if (this.points >= this.p.winPoint) return this.after(900, () => this.finish('win'));
-    if (this.lives <= 0 || this.points <= this.p.losePoint) return this.after(900, () => this.finish('lose'));
+    if (this.lives <= 0) return this.after(900, () => this.finish('lose'));
     this.after(1300, () => this.nextRound());
   }
   renderTop() {

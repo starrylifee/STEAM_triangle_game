@@ -261,29 +261,31 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   // 통과 → +2P
   g.newGame(); g.mission = 'right'; fillIdeal('right');
   const before = g.points; g.endRound(false);
-  check(g.points === before + 2, `라운드 통과 → +2P (${g.points}P)`);
+  check(g.points === before + g.p.passPoint + g.p.fullBonus, `틀을 다 채워 통과 → +${g.p.passPoint}P +${g.p.fullBonus}P (${g.points}P)`);
   await sleep(1500);
   check(g.round === 2, '다음 라운드로');
   // 실패 → 목숨 -1
   g.endRound(false); check(g.lives === 2, '0%로 끝내면 목숨 -1');
   await sleep(1500);
-  // 잘못된 삼각형 두 번 → -15 이하 → Lose
+  // 잘못된 삼각형을 여러 번 골라도 포인트가 줄지 않고 게임이 이어진다
   {
-    const F = g.F, w = g.kit.list.find(q => q.cls !== g.mission);
-    g.kit.dropAt(w, F.x + F.w / 2, F.y + F.h / 2);
-    check(g.points === 2 - 10, `잘못된 삼각형 → -10P (${g.points}P)`);
-    const w2 = g.kit.list.find(q => q.cls !== g.mission && q.state === 'tray');
-    g.kit.dropAt(w2, F.x + F.w / 2, F.y + F.h / 2);
+    const F = g.F, p0 = g.points;
+    for (let i = 0; i < 5; i++) {
+      const w = g.kit.list.find(q => q.cls !== g.mission && q.state === 'tray');
+      if (w) g.kit.dropAt(w, F.x + F.w / 2, F.y + F.h / 2);
+    }
     await sleep(1000);
-    check(ovTitle() === 'Lose...', `두 번 틀리면 ${g.points}P → ${ovTitle()}`);
-    R5.wrongToLose = 2;
+    check(g.points === p0 && !g.over, `잘못된 삼각형 5번 → ${g.points}P, 게임 계속`);
   }
+  // 목숨이 다 떨어지면 Lose
+  g.endRound(false); await sleep(1400); g.endRound(false); await sleep(1000);
+  check(ovTitle() === 'Lose...', `목숨 0 → ${ovTitle()}`);
   clickOv(0);
   // 10라운드를 다 통과하면?
   g.newGame();
   for (let r = 0; r < g.p.rounds; r++) { g.busy = false; g.mission = 'right'; fillIdeal('right'); g.endRound(false); await sleep(1350); }
   R5.allPassPoints = g.lastResult ? g.lastResult.points : g.points;
-  check(ovTitle() === '종료', `10라운드 모두 통과 → ${R5.allPassPoints}P, ${ovTitle()} (이기려면 ${g.p.winPoint}P)`);
+  check(ovTitle() === 'Win!', `라운드마다 꽉 채워 통과 → ${R5.allPassPoints}P, ${ovTitle()} (${g.lastResult.round}라운드, 이기려면 ${g.p.winPoint}P)`);
   clickOv(0);
   // 상점
   g.points = 20; g.renderTop(); const lt = g.left; g.buy('time');

@@ -1,8 +1,8 @@
 {
   "R1": {
     "randMissPerTarget": 14.7,
-    "numMissPerTarget": 1.02,
-    "fourRate": 19
+    "numMissPerTarget": 1.01,
+    "fourRate": 20
   },
   "R2": {
     "randAcute": 25,
@@ -22,22 +22,22 @@
       "acMax": 78,
       "obMin": 102
     },
-    "randWin": 0.4
+    "randWin": 0.5
   },
   "R4": {
     "turnsPerProblem": [
       14,
-      11,
-      9,
-      8,
-      7
+      5,
+      4,
+      3,
+      8
     ],
     "piecesPerProblem": [
       6,
-      6,
       4,
-      5,
-      4
+      3,
+      6,
+      5
     ]
   },
   "R5": {
@@ -56,7 +56,6 @@
       "pct": 83,
       "pieces": 11
     },
-    "wrongToLose": 2,
-    "allPassPoints": 20
+    "allPassPoints": 56
   }
 }

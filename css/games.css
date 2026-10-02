@@ -254,7 +254,7 @@
 .tg-round span { font-family: var(--fm); color: var(--mute); }
 .tg-field { position: relative; min-height: 0; border-radius: var(--r); background: var(--bg2); border: 1px solid var(--line); overflow: hidden; }
 .tg-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.tg-frame-bg { fill: #0E1117; }
+.tg-frame-bg { fill: #F7F4EE; }
 .tg-frame { fill: none; stroke: #E9DCC2; stroke-width: 8; }
 .tg-traybg { fill: #171B23; stroke: rgba(242,237,227,.08); }
 .tg-beep { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 16px 26px; border-radius: 14px; background: var(--bad); color: #fff; font-size: 26px; font-weight: 900; white-space: nowrap; animation: rise .25s var(--ease); pointer-events: none; }
