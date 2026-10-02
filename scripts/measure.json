@@ -1,11 +1,11 @@
 {
   "R1": {
-    "randMissPerTarget": 14.9,
-    "numMissPerTarget": 1.01,
-    "fourRate": 20
+    "randMissPerTarget": 14.2,
+    "numMissPerTarget": 1.02,
+    "fourRate": 19
   },
   "R2": {
-    "randAcute": 25,
+    "randAcute": 26,
     "randObtuse": 69,
     "randRight": 6
   },
@@ -26,18 +26,18 @@
   },
   "R4": {
     "turnsPerProblem": [
+      14,
       8,
-      5,
-      5,
       11,
-      12
+      11,
+      8
     ],
     "piecesPerProblem": [
       6,
+      4,
       6,
-      4,
-      4,
-      6
+      5,
+      4
     ]
   },
   "R5": {
@@ -47,9 +47,9 @@
       "pieces": 7
     },
     "obtuse": {
-      "placed": 9,
+      "placed": 6,
       "pct": 100,
-      "pieces": 9
+      "pieces": 6
     },
     "acute": {
       "placed": 8,

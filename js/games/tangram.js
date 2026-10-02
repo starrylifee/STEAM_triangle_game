@@ -8,12 +8,12 @@ class GameTangram extends GameBase {
     super();
     this.paramSpec = [
       { key: 'lives',      label: '목숨',                       orig: 3,   unit: '개', min: 1, max: 9,   src: 'plan', note: '하트 세 개' },
-      { key: 'timeEarly',  label: '제한시간 1~4라운드',          orig: 120, unit: '초', min: 10, max: 300, src: 'plan', note: '1차 1분 30초 → 3차 페이퍼 "시간을 2분으로"' },
-      { key: 'timeLate',   label: '제한시간 5~10라운드',         orig: 120, unit: '초', min: 10, max: 300, src: 'plan', note: '1차 1분 → 3차 페이퍼 "시간을 2분으로"' },
+      { key: 'timeEarly',  label: '제한시간 1~4라운드',          orig: 120, unit: '초', min: 10, max: 300, src: 'plan', note: '1차 1분 30초 → 2차 페이퍼 "시간을 2분으로"' },
+      { key: 'timeLate',   label: '제한시간 5~10라운드',         orig: 120, unit: '초', min: 10, max: 300, src: 'plan', note: '1차 1분 → 2차 페이퍼 "시간을 2분으로"' },
       { key: 'rounds',     label: '라운드 수',                   orig: 10,  unit: '라운드', min: 1, max: 30, src: 'plan', note: '1~10라운드가 끝' },
       { key: 'passPoint',  label: '통과하면 받는 포인트',         orig: 2,   unit: 'P', min: 0, max: 50,  src: 'plan', note: '"퍼즐을 맞추면 2포인트"' },
-      { key: 'fullBonus',  label: '틀을 다 채우면 더 받는 포인트', orig: 5,   unit: 'P', min: 0, max: 50,  src: 'mine', note: '3차 : 10라운드를 다 통과해도 20P라 50P에 닿지 못해서' },
-      { key: 'wrongPoint', label: '잘못된 삼각형 벌점',           orig: 0,   unit: 'P', min: 0, max: 50,  src: 'plan', note: '1차 10P → 3차 페이퍼 "마이너스가 없었으면" (지는 포인트 -15P도 없앰)' },
+      { key: 'fullBonus',  label: '틀을 다 채우면 더 받는 포인트', orig: 5,   unit: 'P', min: 0, max: 50,  src: 'mine', note: '2차 : 10라운드를 다 통과해도 20P라 50P에 닿지 못해서' },
+      { key: 'wrongPoint', label: '잘못된 삼각형 벌점',           orig: 0,   unit: 'P', min: 0, max: 50,  src: 'plan', note: '1차 10P → 2차 페이퍼 "마이너스가 없었으면" (지는 포인트 -15P도 없앰)' },
       { key: 'winPoint',   label: '이기는 포인트',               orig: 50,  unit: 'P', min: 1, max: 200, src: 'plan', note: '' },
       { key: 'passRight',  label: '통과 기준 — 직각 미션',        orig: 60,  unit: '%', min: 1, max: 100, src: 'plan', note: '' },
       { key: 'passObtuse', label: '통과 기준 — 둔각 미션',        orig: 50,  unit: '%', min: 1, max: 100, src: 'plan', note: '' },
@@ -40,7 +40,7 @@ class GameTangram extends GameBase {
     this.level = 0;                                          // 0 쉬움 · 1 보통 · 2 어려움
     this.SAMPLE = 6;                                         // 채운 % 를 잴 때 점 간격
     this.FULL = 99;                                          // 이만큼 차면 「다 채움」 (점으로 재서 100이 조금 모자랄 수 있다)
-    // 조각 색 : 종류와 상관없이 섞어 칠한다 (색으로 종류를 알 수 없게). 3차 페이퍼 "알록달록"
+    // 조각 색 : 종류와 상관없이 섞어 칠한다 (색으로 종류를 알 수 없게). 2차 페이퍼 "알록달록"
     this.COLORS = ['#E8603C', '#3A7BE0', '#F2B632', '#2FA37A', '#8A63D2', '#E2668F', '#27A9C1', '#9BC53D'];
   }
 
@@ -135,7 +135,7 @@ class GameTangram extends GameBase {
   }
   passNeed() { return { right: this.p.passRight, obtuse: this.p.passObtuse, acute: this.p.passAcute }[this.mission]; }
 
-  /** 미션 조각 : 틀(540×360)을 그 종류 삼각형으로 빈틈없이 자른 판. 조각 크기는 모두 다르게. 3차 페이퍼 "틀을 다 채울 수 있게" */
+  /** 미션 조각 : 틀(540×360)을 그 종류 삼각형으로 빈틈없이 자른 판. 조각 크기는 모두 다르게. 2차 페이퍼 "틀을 다 채울 수 있게" */
   missionPieces(cls) {
     const W = 540, H = 360, F = this.F;
     let L = cls === 'right' ? cutRight(W, H) : cls === 'obtuse' ? cutObtuse(W, H) : cutAcute(W, H);
@@ -183,7 +183,7 @@ class GameTangram extends GameBase {
     SFX.select(); this.updateFill();
     return true;
   }
-  /** 쟁반에서 꺼낸 조각 자리에 같은 조각을 새로 놓는다. 3차 페이퍼 "삼각형이 계속 나왔으면" */
+  /** 쟁반에서 꺼낸 조각 자리에 같은 조각을 새로 놓는다. 2차 페이퍼 "삼각형이 계속 나왔으면" */
   spawn(p) {
     p.spawned = true;
     const q = this.kit.add({ pts: p.pts, cls: p.cls, rot: p.rot0, spot: p.spot, home: p.home });
