@@ -196,6 +196,9 @@
 .pk.locked.acute polygon, .pk.placed.acute polygon   { fill: var(--acute); stroke: #0C0E12; }
 .pk.locked.right polygon, .pk.placed.right polygon   { fill: var(--right); stroke: #0C0E12; }
 .pk.locked.obtuse polygon, .pk.placed.obtuse polygon { fill: var(--obtuse); stroke: #0C0E12; }
+.pk.near.acute polygon  { fill: color-mix(in srgb, var(--acute) 45%, #2A303C); }
+.pk.near.right polygon  { fill: color-mix(in srgb, var(--right) 45%, #2A303C); }
+.pk.near.obtuse polygon { fill: color-mix(in srgb, var(--obtuse) 45%, #2A303C); }
 .pk.hint polygon { animation: pkhint .6s ease-in-out infinite alternate; }
 @keyframes pkhint { to { fill: rgba(98,240,211,.55); stroke: #fff; } }
 .pk-handle { cursor: pointer; }

@@ -6,7 +6,7 @@ const ROOT = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');
 const files = ['core', 'data', 'games/rotate', 'games/pizza', 'games/fish', 'pieces', 'games/shape', 'games/tangram', 'boot'];
 const code = files.map(f => fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8')).join('\n;\n')
-  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify, areaOf, sameSpot, sameShape, centroid };';
+  + '\nwindow.__api = { enterGame, backHome, cur: () => current, Overlay, GAMES, TRI_KEYS, makeTriangle, anglesOf, classify, areaOf, sameSpot, sameShape, centroid, rotPts };';
 
 const dom = new JSDOM(html, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'http://localhost/' });
 const w = dom.window;
@@ -181,6 +181,18 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   A.enterGame(4);
   g = A.cur().game;
   const R4 = { turnsPerProblem: [], piecesPerProblem: [] };
+  // 모양 검사 : 칸이 모두 그 종류이고, 크기가 같은 칸끼리는 90°씩 돌려서 겹친다 (뒤집기 없음)
+  for (const S of g.SHAPES) {
+    const bad = S.tris.filter(t => A.classify(A.anglesOf(t)) !== S.cls).length;
+    let mirror = 0;
+    S.tris.forEach(a => S.tris.forEach(b => {
+      if (a === b || !A.sameShape(a, b)) return;
+      const ca = A.centroid(a), cb = A.centroid(b), ra = a.map(([x, y]) => [x - ca[0], y - ca[1]]);
+      const ok = [0, 90, 180, 270].some(r => A.sameSpot(A.rotPts(ra, r).map(([x, y]) => [x + cb[0], y + cb[1]]), b));
+      if (!ok) mirror++;
+    }));
+    check(!bad && !mirror, `${S.cls} ${S.name} 칸 ${S.tris.length}개 — 종류 어긋남 ${bad}, 돌려도 안 맞는 짝 ${mirror}`);
+  }
   // 다른 종류 조각 → 튕김, 벌점 없음
   {
     const s = g.slots[0], c = A.centroid(s.pts);

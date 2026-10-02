@@ -8,8 +8,8 @@ class GameShape extends GameBase {
     super();
     this.paramSpec = [
       { key: 'problems',  label: '문제 수',               orig: 5,  unit: '문제', min: 1, max: 10, src: 'plan', note: '디자인 "남은 문제 5문제"' },
-      { key: 'timeLimit', label: '제한시간 (한 문제)',      orig: 30, unit: '초',  min: 5, max: 300, src: 'plan', note: '규칙 "제한시간은 30초" — 한 문제마다로 풀었다' },
-      { key: 'decoys',    label: '섞어 놓는 다른 삼각형 수', orig: 3,  unit: '개',  min: 0, max: 8,  src: 'mine', note: '디자인의 삼각형 9개에 맞춤' },
+      { key: 'timeLimit', label: '제한시간 (한 문제)',      orig: 45, unit: '초',  min: 5, max: 300, src: 'plan', note: '1차 30초 → 2차 페이퍼 35초·50초의 중간 (선생님)' },
+      { key: 'decoys',    label: '섞어 놓는 다른 삼각형 수', orig: 4,  unit: '개',  min: 0, max: 8,  src: 'mine', note: '2차 "삼각형을 더 많이" — 쟁반에 9~11개' },
       { key: 'sameDecoy', label: '같은 종류지만 크기가 다른 삼각형', orig: 1, unit: '개', min: 0, max: 4, src: 'mine', note: '' },
       { key: 'step',      label: '한 번에 돌리는 각',       orig: 90, unit: '°',  min: 15, max: 180, src: 'mine', note: '' }
     ];
@@ -25,25 +25,44 @@ class GameShape extends GameBase {
       this.W = 1200; this.H = 760;
       this.board = { x: 20, y: 20, w: 740, h: 720, cx: 390, cy: 420 };
       this.tray = { x: 790, y: 80, w: 390, h: 660 };
-      this.fit = [470, 420]; this.trayCols = 2;
+      this.fit = [640, 540]; this.trayCols = 2;
     }
-    // 모양 칸 (모양 가운데 기준). 거울에 비친 모양이 필요 없도록 이등변을 주로 쓴다
+    // 모양 칸 (모양 가운데 기준). 2차 : 5개 → 11개, 모양마다 삼각형 3~6개.
+    // 크기가 같은 칸끼리는 90°씩 돌려서 겹치게 만든다 (조각은 뒤집을 수 없으니 거울 모양 금지)
+    const wing = (axis, half, len) => [[0, 0], ...[axis - half, axis + half].map(a => [len * Math.cos(a * Math.PI / 180), -len * Math.sin(a * Math.PI / 180)])];
+    const hex = Array.from({ length: 6 }, (_, i) => [2 * Math.cos(i * Math.PI / 3), 2 * Math.sin(i * Math.PI / 3)]);
     this.SHAPES = [
       { cls: 'right', name: '집을', deco: '', tris: [
-        [[-1.5, -0.9], [0, -0.9], [0, -2.4]], [[0, -0.9], [1.5, -0.9], [0, -2.4]],
-        [[-1, -0.9], [1, -0.9], [-1, 1.1]], [[1, -0.9], [1, 1.1], [-1, 1.1]]] },
+        [[-2, -1], [0, -1], [0, -3]], [[0, -1], [2, -1], [0, -3]],
+        [[-2, -1], [2, -1], [0, 1]], [[2, -1], [2, 3], [0, 1]], [[2, 3], [-2, 3], [0, 1]], [[-2, 3], [-2, -1], [0, 1]]] },
+      { cls: 'right', name: '물고기를', deco: 'rfish', tris: [
+        [[0, 0], [1.6, 0], [0, -1.6]], [[0, 0], [0, -1.6], [-1.6, 0]], [[0, 0], [-1.6, 0], [0, 1.6]], [[0, 0], [0, 1.6], [1.6, 0]],
+        [[-1.6, 0], [-2.8, -1.2], [-2.8, 0]], [[-1.6, 0], [-2.8, 1.2], [-2.8, 0]]] },
+      { cls: 'right', name: '바람개비를', deco: 'pinwheel', extra: [[0, 3.6]], tris: [
+        [[0, 0], [0, -2], [2, -2]], [[0, 0], [2, 0], [2, 2]], [[0, 0], [0, 2], [-2, 2]], [[0, 0], [-2, 0], [-2, -2]]] },
+      { cls: 'right', name: '로켓을', deco: '', tris: [
+        [[-0.8, -1], [0.8, -1], [0, -1.8]],
+        [[-0.8, -1], [0.8, -1], [-0.8, 2]], [[0.8, -1], [0.8, 2], [-0.8, 2]],
+        [[-0.8, 1], [-0.8, 2], [-1.8, 2]], [[0.8, 1], [0.8, 2], [1.8, 2]]] },
       { cls: 'acute', name: '산을', deco: '', tris: [
-        [[-3, 1], [-1, 1], [-2, -0.7]], [[-1, 1], [1, 1], [0, -1.9]], [[1, 1], [3, 1], [2, -0.7]]] },
-      { cls: 'obtuse', name: '우산을', deco: 'umbrella', extra: [[0, 2.7]], tris: [
-        [[-3, 0], [-1, 0], [-2, -0.55]], [[-1, 0], [1, 0], [0, -0.55]], [[1, 0], [3, 0], [2, -0.55]]] },
-      { cls: 'right', name: '배를', deco: 'boat', extra: [[0, -2.6]], tris: [
-        [[0.1, -2.4], [0.1, 0], [1.8, 0]], [[-0.1, -1.7], [-0.1, 0], [-1.3, 0]], [[-1.9, 0.25], [1.9, 0.25], [0, 2.15]]] },
+        [[-4, 1], [-2, 1], [-3, -0.8]], [[-2, 1], [0, 1], [-1, -1.8]], [[0, 1], [2, 1], [1, -1.2]], [[2, 1], [4, 1], [3, -0.4]]] },
+      { cls: 'acute', name: '벌집을', deco: '', tris: hex.map((q, i) => [[0, 0], q, hex[(i + 1) % 6]]) },
+      { cls: 'acute', name: '나비를', deco: 'butterfly', extra: [[0, -2.6]], tris: [
+        wing(135, 20, 2.6), wing(45, 20, 2.6), wing(225, 22, 1.8), wing(315, 22, 1.8)] },
       { cls: 'acute', name: '물고기를', deco: 'fish', tris: [
-        [[-0.3, 0], [1.5, 0], [0.6, -1.2]], [[-0.3, 0], [1.5, 0], [0.6, 1.2]], [[-0.3, 0], [-1.5, -0.8], [-1.5, 0.8]]] }
+        [[-0.3, 0], [1.5, 0], [0.6, -1.2]], [[-0.3, 0], [1.5, 0], [0.6, 1.2]], [[-0.3, 0], [-1.5, -0.8], [-1.5, 0.8]]] },
+      { cls: 'obtuse', name: '우산을', deco: 'umbrella', extra: [[0, 2.7]], tris: [
+        [[-3.2, 0], [-1.6, 0], [-2.4, -0.6]], [[-1.6, 0], [0, 0], [-0.8, -0.6]], [[0, 0], [1.6, 0], [0.8, -0.6]], [[1.6, 0], [3.2, 0], [2.4, -0.6]]] },
+      { cls: 'obtuse', name: '지붕을', deco: '', tris: [
+        [[-3, 0], [-1, 0], [-2, -0.8]], [[-1, 0], [1, 0], [0, -0.8]], [[1, 0], [3, 0], [2, -0.8]],
+        [[-2, -0.8], [0, -0.8], [-1, 0]], [[0, -0.8], [2, -0.8], [1, 0]], [[-2, -0.8], [2, -0.8], [0, -1.6]]] },
+      { cls: 'obtuse', name: '배를', deco: 'boat', extra: [[0, -2.8]], tris: [
+        [[0.1, -2.6], [0.1, -0.2], [0.8, -1]],
+        [[-3, 0], [-1, 0], [-2, 0.8]], [[-2, 0.8], [0, 0.8], [-1, 0]], [[-1, 0], [1, 0], [0, 0.8]], [[0, 0.8], [2, 0.8], [1, 0]], [[1, 0], [3, 0], [2, 0.8]]] }
     ].map(s => {
-      // 모양마다 판에 맞게 키우고(최대 110), 가운데로 옮긴다. 우산 손잡이·배 돛대도 판 안에 들게
+      // 모양마다 판에 맞게 키우고(최대 140, 폰 110), 가운데로 옮긴다. 우산 손잡이·배 돛대도 판 안에 들게
       const all = s.tris.flat().concat(s.extra || []), xs = all.map(q => q[0]), ys = all.map(q => q[1]);
-      const k = Math.min(this.fit[0] / (Math.max(...xs) - Math.min(...xs)), this.fit[1] / (Math.max(...ys) - Math.min(...ys)), 110);
+      const k = Math.min(this.fit[0] / (Math.max(...xs) - Math.min(...xs)), this.fit[1] / (Math.max(...ys) - Math.min(...ys)), this.phone ? 110 : 140);
       const ox = (Math.max(...xs) + Math.min(...xs)) / 2, oy = (Math.max(...ys) + Math.min(...ys)) / 2;
       return Object.assign(s, { k, ox, oy, tris: s.tris.map(t => t.map(([x, y]) => [(x - ox) * k, (y - oy) * k])) });
     });
@@ -87,7 +106,9 @@ class GameShape extends GameBase {
 
   newGame() {
     this.over = false; this.idx = -1; this.results = [];
-    this.order = shuffle(this.SHAPES).slice(0, this.p.problems);
+    // 세 종류가 한 번씩은 나오게 고른 뒤 섞는다
+    const pool = shuffle(this.SHAPES), first = TRI_KEYS.map(k => pool.find(s => s.cls === k));
+    this.order = shuffle(first.concat(pool.filter(s => !first.includes(s))).slice(0, this.p.problems));
     this.next();
   }
   next() {
@@ -109,7 +130,7 @@ class GameShape extends GameBase {
       pts.forEach((q, k) => {
         const dx = c[0] - q[0], dy = c[1] - q[1], d = Math.hypot(dx, dy) || 1;
         const kind = ang[k] > 90.5 ? '둔각' : ang[k] > 89.5 ? '직각' : '예각';
-        const off = this.phone ? 34 : 30;
+        const off = Math.max(this.phone ? 30 : 26, Math.min(0.34 * d, 40));   // 여러 칸이 한 점에 모이면 글씨를 조금 더 안쪽으로
         const tx = svgEl('text', { x: q[0] + dx / d * off, y: q[1] + dy / d * off + 6, class: 'sh-vlabel' }, g);
         tx.textContent = kind;
       });
@@ -128,23 +149,26 @@ class GameShape extends GameBase {
       const src = pick(this.slots), k = pick([0.7, 1.3]);
       specs.push({ pts: center(src.pts).map(([x, y]) => [x * k, y * k]), cls: S.cls, rot: rndInt(0, 3) * 90, odd: true });
     }
-    if (this.phone) {
-      // 쟁반 칸에 맞춰 조각을 줄여 보여 준다 (끌어 올리면 실제 크기)
-      const rows = Math.ceil(specs.length / this.trayCols), cw = this.tray.w / this.trayCols, ch = this.tray.h / rows;
-      const big = Math.max(...specs.map(sp => 2 * Math.max(...sp.pts.map(q => Math.hypot(q[0], q[1])))));
-      this.kit.o.trayScale = Math.min(0.62, (Math.min(cw, ch) - 10) / big);
-    }
+    // 쟁반 칸에 맞춰 조각을 줄여 보여 준다 (끌어 올리면 실제 크기). 칸이 가장 커지는 열 수를 고른다
+    const big = Math.max(...specs.map(sp => 2 * Math.max(...sp.pts.map(q => Math.hypot(q[0], q[1])))));
+    const cell = (c) => Math.min(this.tray.w / c, this.tray.h / Math.ceil(specs.length / c));
+    const cols = [this.trayCols, this.trayCols + 1].reduce((a, c) => cell(c) > cell(a) ? c : a);
+    this.kit.o.trayScale = Math.min(this.phone ? 0.62 : 0.56, (cell(cols) - 10) / big);
     const list = shuffle(specs).map(sp => this.kit.add(Object.assign(sp, { home: { x: 0, y: 0 } })));
-    this.kit.layoutTray(list, this.tray, this.trayCols);
+    this.kit.layoutTray(list, this.tray, cols);
     list.forEach(p => this.kit.home(p));
   }
 
   drawDeco(S) {
     const kind = S.deco, u = S.k, B = this.board, g = $('#sh-deco'), x = B.cx - S.ox * u, y = B.cy - S.oy * u;
+    const L = (d) => `<path d="${d}" class="sh-decoline"/>`, P = (a, b) => `${x + a * u} ${y + b * u}`;
     g.innerHTML = kind === 'umbrella'
       ? `<path d="M${x} ${y} V${y + 2.3 * u} a${0.35 * u} ${0.35 * u} 0 0 1 ${-0.7 * u} 0" class="sh-decoline"/>`
-      : kind === 'boat' ? `<path d="M${x} ${y - 2.6 * u} V${y + 0.25 * u}" class="sh-decoline"/>`
-      : kind === 'fish' ? `<circle cx="${x + 0.9 * u}" cy="${y - 0.25 * u}" r="5" class="sh-decodot"/>` : '';
+      : kind === 'boat' ? L(`M${P(0, -2.8)} L${P(0, 0)}`)
+      : kind === 'pinwheel' ? L(`M${P(0, 0)} L${P(0, 3.6)}`)
+      : kind === 'butterfly' ? L(`M${P(0, -0.9)} L${P(0, 1.3)}`) + L(`M${P(-0.08, -0.9)} L${P(-0.5, -2.6)}`) + L(`M${P(0.08, -0.9)} L${P(0.5, -2.6)}`)
+      : kind === 'fish' ? `<circle cx="${x + 0.9 * u}" cy="${y - 0.25 * u}" r="5" class="sh-decodot"/>`
+      : kind === 'rfish' ? `<circle cx="${x + 0.6 * u}" cy="${y - 0.35 * u}" r="6" class="sh-decodot"/>` : '';
   }
 
   /* ── 놓기 ───────────────────────────────── */
@@ -174,7 +198,7 @@ class GameShape extends GameBase {
       return 'lock';
     }
     // 같은 모양이지만 방향이 다름 → 칸 위에 두고 돌리게 한다
-    p.x = c[0]; p.y = c[1]; this.kit.draw(p);
+    p.x = c[0]; p.y = c[1]; p.g.classList.add('near', p.cls); this.kit.draw(p);
     if (!afterRotate) { SFX.select(); Toast.show('돌려 봐'); }
     return 'stay';
   }

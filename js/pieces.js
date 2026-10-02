@@ -45,7 +45,7 @@ class PieceKit {
   }
   home(p) {
     p.state = 'tray'; p.x = p.home.x; p.y = p.home.y; p.s = this.o.trayScale;
-    p.g.classList.remove('placed', 'acute', 'right', 'obtuse');
+    p.g.classList.remove('placed', 'near', 'acute', 'right', 'obtuse');
     this.draw(p, true);
   }
   select(p) {

@@ -1,7 +1,7 @@
 {
   "R1": {
-    "randMissPerTarget": 14.4,
-    "numMissPerTarget": 1.01,
+    "randMissPerTarget": 14.7,
+    "numMissPerTarget": 1.02,
     "fourRate": 19
   },
   "R2": {
@@ -22,22 +22,22 @@
       "acMax": 78,
       "obMin": 102
     },
-    "randWin": 0.3
+    "randWin": 0.4
   },
   "R4": {
     "turnsPerProblem": [
-      5,
-      10,
-      5,
-      5,
+      14,
+      11,
+      9,
+      8,
       7
     ],
     "piecesPerProblem": [
-      3,
+      6,
+      6,
       4,
-      3,
-      3,
-      3
+      5,
+      4
     ]
   },
   "R5": {
