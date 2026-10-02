@@ -90,9 +90,9 @@ class GameTangram extends GameBase {
     this.svg = $('.tg-svg', stage);
     this.kit = new PieceKit(this, {
       svg: this.svg, layer: $('#tg-pieces', stage), trayScale: 0.42, step: 90,
-      onDrop: (p) => this.drop(p),
+      onDrop: (p, from) => this.drop(p, from),
       onPick: (p) => { if (p.state === 'placed') { p.state = 'tray'; this.updateFill(); } },
-      onRotate: (p) => { if (p.state === 'placed') { const ok = this.validPlace(p); if (!ok) { this.kit.home(p); } this.updateFill(); } }
+      onRotate: (p) => { if (p.state === 'placed') { const ok = this.validPlace(p); if (!ok) { p.spawned ? this.discard(p) : this.kit.home(p); } this.updateFill(); } }
     });
     $('#tg-faces').innerHTML = ['쉬움', '보통', '어려움'].map((n, i) => `
       <button type="button" class="tg-face" data-lv="${i}" title="${n}">${this.faceSVG(i)}<span>${n}</span></button>`).join('');
@@ -135,28 +135,18 @@ class GameTangram extends GameBase {
   }
   passNeed() { return { right: this.p.passRight, obtuse: this.p.passObtuse, acute: this.p.passAcute }[this.mission]; }
 
-  /** 미션 조각 : 틀을 채울 수 있는 크기로. 다른 종류 조각은 난이도만큼 섞는다 */
+  /** 미션 조각 : 틀(540×360)을 그 종류 삼각형으로 빈틈없이 자른 판. 조각 크기는 모두 다르게. 3차 페이퍼 "틀을 다 채울 수 있게" */
   missionPieces(cls) {
-    const F = this.F, out = [];
-    if (cls === 'right') {
-      // 3×2 정사각형(180) — 큰 직사각형 2개(360×180)와 정사각형 2개를 대각선으로 자른 8조각
-      const a = F.h / 2;
-      for (let i = 0; i < 2; i++) out.push([[0, 0], [2 * a, 0], [0, a]], [[2 * a, 0], [2 * a, a], [0, a]]);
-      for (let i = 0; i < 2; i++) out.push([[0, 0], [a, 0], [0, a]], [[a, 0], [a, a], [0, a]]);
-    } else if (cls === 'obtuse') {
-      // 밑변 270·높이 90 — 꼭지각 113°
-      const b = F.w / 2, h = F.h / 4;
-      for (let i = 0; i < 10; i++) out.push([[0, h], [b, h], [b / 2, 0]]);
-    } else {
-      // 밑변 180·높이 180 — 꼭지각 53°, 밑각 63°. 띠 두 줄로 놓으면 83%까지 찬다
-      const b = F.w / 3, h = F.h / 2;
-      for (let i = 0; i < 11; i++) out.push([[0, h], [b, h], [b / 2, 0]]);
-    }
-    return out.map(center);
+    const W = 540, H = 360, F = this.F;
+    let L = cls === 'right' ? cutRight(W, H) : cls === 'obtuse' ? cutObtuse(W, H) : cutAcute(W, H);
+    const fx = Math.random() < 0.5, fy = Math.random() < 0.5;          // 뒤집어서 매번 다르게
+    L = L.map(t => t.map(([x, y]) => [fx ? W - x : x, fy ? H - y : y]));
+    this.spots = L.map(t => t.map(([x, y]) => [F.x + x * F.w / W, F.y + y * F.h / H]));
+    return this.spots.map(center);
   }
   buildPieces() {
     this.kit.clear();
-    const specs = this.missionPieces(this.mission).map(pts => ({ pts, cls: this.mission, rot: rndInt(0, 3) * 90 }));
+    const specs = this.missionPieces(this.mission).map((pts, i) => ({ pts, cls: this.mission, rot: rndInt(0, 3) * 90, spot: i }));
     const nDecoy = this.p.decoyEasy[this.level];
     const gap = [24, 14, 6][this.level];
     const others = TRI_KEYS.filter(k => k !== this.mission);
@@ -170,14 +160,20 @@ class GameTangram extends GameBase {
     this.kit.o.trayScale = Math.min(0.42, (Math.min(cw, ch) - 12) / big);
     const list = shuffle(specs).map(sp => this.kit.add(Object.assign(sp, { home: { x: 0, y: 0 } })));
     const pal = shuffle(this.COLORS);
-    list.forEach((p, i) => { p.poly.style.fill = pal[i % pal.length]; });
+    list.forEach((p, i) => { p.poly.style.fill = pal[i % pal.length]; p.rot0 = p.rot; });
     this.kit.layoutTray(list, this.tray, cols);
     list.forEach(p => this.kit.home(p));
   }
 
   /* ── 놓기 ───────────────────────────────── */
   inFrame(x, y, pad = 24) { const F = this.F; return x > F.x - pad && x < F.x + F.w + pad && y > F.y - pad && y < F.y + F.h + pad; }
-  drop(p) {
+  drop(p, from) {
+    const ok = this.place(p);
+    if (ok && from === 'tray' && !p.spawned) this.spawn(p);
+    if (!ok && p.spawned) { this.discard(p); return true; }              // 쟁반 자리에 이미 새 조각이 있으면 버린다
+    return ok;
+  }
+  place(p) {
     if (this.busy || this.over) return false;
     if (!this.inFrame(p.x, p.y)) return false;
     if (p.cls !== this.mission) { this.wrong(); return false; }
@@ -186,6 +182,16 @@ class GameTangram extends GameBase {
     p.state = 'placed'; p.g.classList.add('placed', p.cls); this.kit.draw(p);
     SFX.select(); this.updateFill();
     return true;
+  }
+  /** 쟁반에서 꺼낸 조각 자리에 같은 조각을 새로 놓는다. 3차 페이퍼 "삼각형이 계속 나왔으면" */
+  spawn(p) {
+    p.spawned = true;
+    const q = this.kit.add({ pts: p.pts, cls: p.cls, rot: p.rot0, spot: p.spot, home: p.home });
+    q.rot0 = p.rot0; q.poly.style.fill = pick(this.COLORS.filter(c => c !== p.poly.style.fill));
+  }
+  discard(p) {
+    if (this.kit.sel === p) this.kit.select(null);
+    p.g.remove(); this.kit.list.splice(this.kit.list.indexOf(p), 1); this.updateFill();
   }
   /** 가까운 틀 모서리·다른 조각 꼭짓점에 붙인다 */
   snap(p) {
@@ -255,8 +261,15 @@ class GameTangram extends GameBase {
     if (kind === 'time') { this.left += 15; Toast.show('+15초', 'good'); }
     else if (kind === 'skip') { Toast.show('건너뛰기'); this.busy = true; this.after(500, () => this.nextRound()); }
     else {
-      const p = this.kit.list.find(q => q.state === 'tray' && q.cls === this.mission);
+      // 아직 비어 있는 자리 하나와 거기에 맞는 조각을 3초 동안 보여 준다
+      const placed = this.kit.list.filter(q => q.state === 'placed').map(q => this.kit.world(q));
+      const i = this.spots.findIndex(t => { const c = centroid(t); return !placed.some(w => inTri(c[0], c[1], w)); });
+      const p = this.kit.list.find(q => q.state === 'tray' && q.spot === (i < 0 ? q.spot : i) && q.cls === this.mission);
       if (p) { p.g.classList.add('hint'); this.after(3000, () => p.g.classList.remove('hint')); }
+      if (i >= 0) {
+        const h = svgEl('polygon', { points: ptsAttr(this.spots[i]), class: 'tg-hintspot' }, $('#tg-pieces'));
+        this.after(3000, () => h.remove());
+      }
     }
   }
 
@@ -305,3 +318,52 @@ class GameTangram extends GameBase {
   }
 }
 gameClasses[5] = GameTangram;
+
+/* ── 틀 자르기 (좌표는 틀 왼쪽 위 기준) ───────── */
+/** 직각삼각형 (A가 직각) → 직각에서 빗변으로 수선을 내려 작은 직각삼각형 둘 */
+function splitAlt([A, B, C]) {
+  const d = [C[0] - B[0], C[1] - B[1]], t = ((A[0] - B[0]) * d[0] + (A[1] - B[1]) * d[1]) / (d[0] ** 2 + d[1] ** 2);
+  const P = [B[0] + t * d[0], B[1] + t * d[1]];
+  return [[P, A, B], [P, C, A]];                                        // 둘 다 P가 직각
+}
+/** 직각 : 틀을 세로로 둘로 나누고 대각선, 그중 몇 개를 수선으로 다시 자른다 → 7조각 */
+function cutRight(W, H) {
+  const a = Math.round(pick([rnd(190, 240), rnd(300, 350)]));
+  const rect = (x0, x1, flip) => flip
+    ? [[[x0, 0], [x1, 0], [x0, H]], [[x1, H], [x0, H], [x1, 0]]]       // 직각이 첫 점
+    : [[[x1, 0], [x1, H], [x0, 0]], [[x0, H], [x0, 0], [x1, H]]];
+  const [l1, l2] = rect(0, a, Math.random() < 0.5), [r1, r2] = rect(a, W, Math.random() < 0.5);
+  const [r2a, r2b] = splitAlt(r2);
+  return [l1, ...splitAlt(l2), r1, r2a, ...splitAlt(r2b)];
+}
+/** 삼각형 안에 점을 찍어 셋으로 : 세 조각 모두 그 점에서 둔각이 되게 (가장 작은 각이 너무 작지 않게) */
+function splitObtuse(T) {
+  let best = null;
+  for (let i = 0; i < 600; i++) {
+    let u = Math.random(), v = Math.random(); if (u + v > 1) { u = 1 - u; v = 1 - v; }
+    const O = [T[0][0] + u * (T[1][0] - T[0][0]) + v * (T[2][0] - T[0][0]), T[0][1] + u * (T[1][1] - T[0][1]) + v * (T[2][1] - T[0][1])];
+    const parts = [[O, T[0], T[1]], [O, T[1], T[2]], [O, T[2], T[0]]];
+    const atO = Math.min(...parts.map(t => anglesOf(t)[0])), small = Math.min(...parts.flatMap(t => anglesOf(t)));
+    const sc = Math.min(atO - 96, (small - 9) * 2);
+    if (!best || sc > best.sc) best = { sc, parts };
+    if (sc > 6 && Math.random() < 0.3) break;                            // 좋은 점 중에서 아무거나 → 매번 다른 판
+  }
+  return best.parts;
+}
+/** 둔각 : 대각선으로 둘(6조각) 또는 윗변 한 점에서 셋(9조각)으로 나눈 뒤 하나씩 셋으로 */
+function cutObtuse(W, H, tries) {
+  const big = Math.random() < 0.5
+    ? [[[0, 0], [W, 0], [0, H]], [[W, H], [0, H], [W, 0]]]
+    : ((p) => [[[0, 0], [p, 0], [0, H]], [[p, 0], [0, H], [W, H]], [[W, 0], [W, H], [p, 0]]])(Math.round(rnd(190, 350)));
+  const L = big.flatMap(splitObtuse);
+  // 크기가 같은 조각이 생기면 다시 자른다 (페이퍼 "삼각형 크기가 전부 다르면")
+  const same = L.some((t, i) => L.some((u, j) => j > i && sameShape(t, u, 6)));
+  return same && (tries || 0) < 20 ? cutObtuse(W, H, (tries || 0) + 1) : L;
+}
+/** 예각 : 미리 계산한 8조각 판 두 가지 (가장 큰 각 82°, 같은 크기 조각 없음). E 아랫변 · F 윗변 · X Y 안쪽 점 */
+function cutAcute(W, H) {
+  const [ex, fx, xx, xy, yx, yy] = pick([[275, 306, 214, 186, 338, 222], [234, 267, 202, 139, 326, 174]]);
+  const A = [0, H], B = [W, H], C = [W, 0], D = [0, 0], E = [ex, H], F = [fx, 0], X = [xx, xy], Y = [yx, yy];
+  return [[A, E, X], [A, X, D], [D, X, F], [X, E, Y], [X, Y, F], [E, B, Y], [B, C, Y], [Y, C, F]];
+}
+

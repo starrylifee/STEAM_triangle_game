@@ -1,13 +1,13 @@
 {
   "R1": {
-    "randMissPerTarget": 14.7,
-    "numMissPerTarget": 1.01,
-    "fourRate": 20
+    "randMissPerTarget": 14.3,
+    "numMissPerTarget": 0.99,
+    "fourRate": 19
   },
   "R2": {
-    "randAcute": 25,
+    "randAcute": 26,
     "randObtuse": 69,
-    "randRight": 6
+    "randRight": 5
   },
   "R3": {
     "sea": {
@@ -22,39 +22,39 @@
       "acMax": 78,
       "obMin": 102
     },
-    "randWin": 0.5
+    "randWin": 0.4
   },
   "R4": {
     "turnsPerProblem": [
-      14,
-      5,
-      4,
-      3,
-      8
+      12,
+      11,
+      6,
+      9,
+      13
     ],
     "piecesPerProblem": [
       6,
       4,
-      3,
+      5,
       6,
-      5
+      6
     ]
   },
   "R5": {
     "right": {
+      "placed": 7,
+      "pct": 100,
+      "pieces": 7
+    },
+    "obtuse": {
+      "placed": 6,
+      "pct": 100,
+      "pieces": 6
+    },
+    "acute": {
       "placed": 8,
       "pct": 100,
       "pieces": 8
-    },
-    "obtuse": {
-      "placed": 10,
-      "pct": 62,
-      "pieces": 10
-    },
-    "acute": {
-      "placed": 10,
-      "pct": 83,
-      "pieces": 11
     },
     "allPassPoints": 56
   }

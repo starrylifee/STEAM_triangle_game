@@ -226,37 +226,29 @@ const clickOv = (i = 0) => { const b = w.document.querySelectorAll('#ov-actions 
   A.enterGame(5);
   g = A.cur().game;
   const fillIdeal = (cls) => {
-    // 미션 조각을 틀에 빈틈없이(또는 띠 모양으로) 놓는 이상적인 배치
+    // 미리 자른 자리마다 맞는 조각을 돌려서 놓는다
     g.mission = cls; g.buildPieces();
-    const F = g.F, mine = g.kit.list.filter(q => q.cls === cls);
-    let spots = [];
-    if (cls === 'right') {
-      const a = F.h / 2;
-      spots = [[[0, 0], [2 * a, 0], [0, a]], [[2 * a, 0], [2 * a, a], [0, a]], [[2 * a, 0], [3 * a, 0], [2 * a, a]], [[3 * a, 0], [3 * a, a], [2 * a, a]],
-        [[0, a], [a, a], [0, 2 * a]], [[a, a], [a, 2 * a], [0, 2 * a]], [[a, a], [3 * a, a], [a, 2 * a]], [[3 * a, a], [3 * a, 2 * a], [a, 2 * a]]];
-    } else {
-      const b = cls === 'obtuse' ? F.w / 2 : F.w / 3, h = cls === 'obtuse' ? F.h / 4 : F.h / 2;
-      for (let row = 0; row * h + h <= F.h + 0.1; row++) {
-        const y0 = row * h;
-        for (let x = 0; x + b <= F.w + 0.1; x += b) spots.push([[x, y0 + h], [x + b, y0 + h], [x + b / 2, y0]]);
-        for (let x = b / 2; x + b <= F.w + 0.1; x += b) spots.push([[x, y0], [x + b, y0], [x + b / 2, y0 + h]]);
-      }
-    }
-    spots = spots.map(t => t.map(([x, y]) => [x + F.x, y + F.y]));
     let placed = 0;
-    for (const sp of spots) {
-      const c = A.centroid(sp);
-      const q = mine.find(p => p.state === 'tray' && A.sameShape(g.kit.world(p, 0, 0, 0), sp));
-      if (!q) break;
+    g.spots.forEach((sp, i) => {
+      const q = g.kit.list.find(p => p.state === 'tray' && p.cls === cls && p.spot === i), c = A.centroid(sp);
       for (let r = 0; r < 4; r++) if (A.sameSpot(g.kit.world(q, c[0], c[1], r * 90), sp, 3)) { if (g.kit.dropAt(q, c[0], c[1], r * 90)) placed++; break; }
-    }
-    return { placed, pct: g.coverage(), pieces: mine.length };
+    });
+    return { placed, pct: g.coverage(), pieces: g.spots.length };
   };
   const R5 = {};
   for (const cls of ['right', 'obtuse', 'acute']) {
     R5[cls] = fillIdeal(cls);
     const need = g.passNeed();
-    check(R5[cls].pct >= need, `${cls} 이상적으로 채우면 ${R5[cls].pct}% (조각 ${R5[cls].placed}/${R5[cls].pieces}, 통과 ${need}%)`);
+    check(R5[cls].pct >= g.FULL && R5[cls].placed === R5[cls].pieces, `${cls} 자른 대로 놓으면 ${R5[cls].pct}% (조각 ${R5[cls].placed}/${R5[cls].pieces}, 통과 ${need}%)`);
+  }
+  // 조각이 계속 나온다 : 꺼낸 자리에 새 조각, 틀 밖에 버리면 사라짐
+  {
+    g.mission = 'right'; g.buildPieces();
+    const n0 = g.kit.list.length, q = g.kit.list.find(p => p.cls === 'right'), F = g.F;
+    g.kit.dropAt(q, F.x + 120, F.y + 120);
+    const n1 = g.kit.list.length;
+    g.kit.dropAt(q, F.x - 300, F.y + F.h + 200);
+    check(n1 === n0 + 1 && g.kit.list.length === n0 && g.kit.list.some(p => p.spot === q.spot && p.state === 'tray'), `꺼내 놓으면 쟁반에 같은 조각이 또 (${n0}→${n1}), 틀 밖에 버리면 사라짐 (${g.kit.list.length})`);
   }
   // 통과 → +2P
   g.newGame(); g.mission = 'right'; fillIdeal('right');
