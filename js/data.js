@@ -34,6 +34,7 @@ const GAMES = {
     line: '문장이 말한 삼각형으로만 집·나비·지붕 같은 모양을 완성한다',
     tags: ['acute', 'right', 'obtuse', 'move'],
     pages: ['g4_page_1.jpg', 'g4_page_2.jpg', 'g4_page_3.jpg', 'g4_page_4.jpg'],
+    v1: true,
     papers: ['g4_paper_1.jpg', 'g4_paper_2.jpg', 'g4_paper_3.jpg']
   },
   5: {
@@ -42,6 +43,7 @@ const GAMES = {
     tags: ['acute', 'right', 'obtuse'],
     pages: ['g5_page_1.jpg', 'g5_page_2.jpg', 'g5_page_3.jpg', 'g5_page_4.jpg', 'g5_page_5.jpg'],
     caps: ['1. 규칙 설명', '1. 규칙 설명 (뒷장)', '2. 배운 내용', '3. 디자인', '4. 디자인 2'],
+    v1: true,
     papers: ['g5_paper_1.jpg', 'g5_paper_2.jpg', 'g5_paper_3.jpg', 'g5_paper_4.jpg']
   }
 };
